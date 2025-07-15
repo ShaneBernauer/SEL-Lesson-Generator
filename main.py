@@ -100,9 +100,9 @@ def home():
         <div class="footer">Built with ❤️ by Shane | Powered by GPT-4</div>
 
         <script>
-            function setPrompt(text) {{
+            function setPrompt(text) {
                 document.querySelector('textarea[name="prompt"]').value = text;
-            }}
+            }
         </script>
     </body>
     </html>
@@ -128,7 +128,6 @@ def download():
         f.write(lesson_text)
     return send_file("lesson.txt", as_attachment=True)
 if __name__ == "__main__":
-    app.run(debug=True)
-app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
