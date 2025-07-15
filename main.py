@@ -1,32 +1,27 @@
-import os
 from flask import Flask, request, send_file
-from openai import OpenAI
+import openai
+import os
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+lesson_text = ""
 
-lesson_text = ""  # Stores the latest lesson
+# Setup OpenAI API Key
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-
-# Generate lesson from prompt
+# Generate Lesson
 def generate_lesson(prompt_text):
     global lesson_text
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
-                {"role": "user", "content": prompt_text}
-            ],
-            temperature=0.7,
-            max_tokens=800
-        )
-        lesson_text = response.choices[0].message.content
-        return lesson_text
-    except Exception as e:
-        lesson_text = f"Error generating lesson: {str(e)}"
-        return lesson_text
-
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
+            {"role": "user", "content": prompt_text}
+        ],
+        temperature=0.7,
+        max_tokens=800
+    )
+    lesson_text = response.choices[0].message.content
+    return lesson_text
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -44,9 +39,7 @@ def home():
                 margin: auto;
                 color: #333;
             }
-            h2 {
-                color: #2d6a4f;
-            }
+            h2 { color: #2d6a4f; }
             textarea {
                 width: 100%;
                 padding: 10px;
@@ -85,7 +78,7 @@ def home():
         </style>
     </head>
     <body>
-        <h2>🌸 SEL Lesson Generator</h2>
+        <h2>🌞 SEL Lesson Generator</h2>
 
         <div class="template-buttons">
             <strong>Try a template:</strong><br>
@@ -96,28 +89,24 @@ def home():
             <button type="button" onclick="setPrompt(`Build a 20-minute ELA writing activity for 4th grade that helps students manage frustration during editing.`)">ELA + Frustration Tolerance</button>
         </div>
 
-        <br><br>
         <form method="POST">
             <textarea name="prompt" rows="5" placeholder="Type your custom prompt here..."></textarea><br>
             <input type="submit" value="Generate Lesson">
         </form>
 
         <div style="margin-top: 20px;">{output}</div>
-        <div>{download_button}</div>
+        {download_button}
 
-        <div class="footer">
-            Built with ❤️ by Shane | Powered by GPT-4
-        </div>
+        <div class="footer">Built with ❤️ by Shane | Powered by GPT-4</div>
 
         <script>
-            function setPrompt(text) {
+            function setPrompt(text) {{
                 document.querySelector('textarea[name="prompt"]').value = text;
-            }
+            }}
         </script>
     </body>
     </html>
     """
-
     output = ""
     download_button = ""
 
@@ -133,16 +122,13 @@ def home():
 
     return html.format(output=output, download_button=download_button)
 
-
 @app.route("/download", methods=["GET"])
 def download():
-    try:
-        with open("lesson.txt", "w", encoding="utf-8") as f:
-            f.write(lesson_text)
-        return send_file("lesson.txt", as_attachment=True)
-    except Exception as e:
-        return f"Error creating download file: {str(e)}", 500
+    with open("lesson.txt", "w", encoding="utf-8") as f:
+        f.write(lesson_text)
+    return send_file("lesson.txt", as_attachment=True)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
+app.run(host="0.0.0.0", port=80)
 
 
