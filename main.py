@@ -1,9 +1,9 @@
 import os
 from flask import Flask, request, send_file
-import openai
+from openai import OpenAI
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 lesson_text = ""  # Stores the latest lesson
 
@@ -11,17 +11,21 @@ lesson_text = ""  # Stores the latest lesson
 # Generate lesson from prompt
 def generate_lesson(prompt_text):
     global lesson_text
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
-            {"role": "user", "content": prompt_text}
-        ],
-        temperature=0.7,
-        max_tokens=800
-    )
-    lesson_text = response.choices[0].message.content
-    return lesson_text
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
+                {"role": "user", "content": prompt_text}
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+        lesson_text = response.choices[0].message.content
+        return lesson_text
+    except Exception as e:
+        lesson_text = f"Error generating lesson: {str(e)}"
+        return lesson_text
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -132,9 +136,12 @@ def home():
 
 @app.route("/download", methods=["GET"])
 def download():
-    with open("lesson.txt", "w", encoding="utf-8") as f:
-        f.write(lesson_text)
-    return send_file("lesson.txt", as_attachment=True)
+    try:
+        with open("lesson.txt", "w", encoding="utf-8") as f:
+            f.write(lesson_text)
+        return send_file("lesson.txt", as_attachment=True)
+    except Exception as e:
+        return f"Error creating download file: {str(e)}", 500
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
