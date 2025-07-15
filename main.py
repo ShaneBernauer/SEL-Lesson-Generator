@@ -184,79 +184,6 @@ html = """
             flex-wrap: wrap;
         }
         
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #f39c12;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f39c12, #e67e22);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
-        
-        .loading-text {
-            color: #2c5aa0;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .loading-subtext {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -268,10 +195,6 @@ html = """
             
             .btn {
                 width: 100%;
-            }
-            
-            .loading-content {
-                padding: 30px 20px;
             }
         }
     </style>
@@ -345,21 +268,7 @@ html = """
             </div>
         </div>
 
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">🧠 Generating Your Lesson Plan...</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="loading-subtext" id="loadingSubtext">This may take a few moments</div>
-            </div>
-        </div>
-
         <script>
-            let progressInterval;
-            
             function showPrompt() {
                 const grade = document.getElementById('grade').value;
                 const subject = document.getElementById('subject').value;
@@ -381,74 +290,6 @@ html = """
             function hidePrompt() {
                 document.getElementById('promptSection').style.display = 'none';
             }
-            
-            function showLoading() {
-                document.getElementById('loadingOverlay').style.display = 'flex';
-                document.getElementById('progressFill').style.width = '0%';
-                
-                // Disable all buttons
-                const buttons = document.querySelectorAll('button');
-                buttons.forEach(btn => btn.disabled = true);
-                
-                // Start progress animation
-                let progress = 0;
-                const messages = [
-                    '🧠 Analyzing your requirements...',
-                    '📚 Crafting educational content...',
-                    '❤️ Integrating SEL components...',
-                    '🎯 Finalizing lesson structure...',
-                    '✨ Almost ready!'
-                ];
-                
-                progressInterval = setInterval(() => {
-                    progress += Math.random() * 15 + 5;
-                    if (progress > 90) progress = 90;
-                    
-                    document.getElementById('progressFill').style.width = progress + '%';
-                    
-                    // Change message based on progress
-                    const messageIndex = Math.floor(progress / 20);
-                    if (messageIndex < messages.length) {
-                        document.getElementById('loadingText').textContent = messages[messageIndex];
-                    }
-                    
-                    if (progress >= 90) {
-                        clearInterval(progressInterval);
-                        document.getElementById('loadingSubtext').textContent = 'Putting finishing touches...';
-                    }
-                }, 500);
-            }
-            
-            function hideLoading() {
-                document.getElementById('loadingOverlay').style.display = 'none';
-                document.getElementById('progressFill').style.width = '100%';
-                
-                // Re-enable all buttons
-                const buttons = document.querySelectorAll('button');
-                buttons.forEach(btn => btn.disabled = false);
-                
-                if (progressInterval) {
-                    clearInterval(progressInterval);
-                }
-            }
-            
-            // Add event listeners to forms to show loading
-            document.addEventListener('DOMContentLoaded', function() {
-                const forms = document.querySelectorAll('form');
-                forms.forEach(form => {
-                    form.addEventListener('submit', function(e) {
-                        const action = this.querySelector('input[name="action"]') || this.querySelector('button[name="action"]');
-                        if (action && (action.value === 'generate' || action.value === 'generate_custom' || action.value === 'regenerate')) {
-                            showLoading();
-                        }
-                    });
-                });
-            });
-            
-            // Hide loading on page load (in case of refresh after form submission)
-            window.addEventListener('load', function() {
-                hideLoading();
-            });
         </script>
 
         {output}
