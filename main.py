@@ -1,17 +1,17 @@
-from flask import Flask, request, send_file
-import openai
+from openai import OpenAI
 import os
+from flask import Flask, request, send_file
+
+# Get API key from Replit Secrets
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 app = Flask(__name__)
-lesson_text = ""
+lesson_text = ""  # Stores the latest lesson
 
-# Setup OpenAI API Key
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-
-# Generate Lesson
+# Generate lesson from prompt
 def generate_lesson(prompt_text):
     global lesson_text
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
@@ -23,64 +23,15 @@ def generate_lesson(prompt_text):
     lesson_text = response.choices[0].message.content
     return lesson_text
 
+# Home route with form and buttons
 @app.route("/", methods=["GET", "POST"])
 def home():
     html = """
     <html>
-    <head>
-        <title>SEL Lesson Generator</title>
-        <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
-        <style>
-            body {{
-                font-family: 'Nunito', sans-serif;
-                background-color: #f1f5f9;
-                padding: 30px;
-                max-width: 800px;
-                margin: auto;
-                color: #333;
-            }}
-            h2 {{ color: #2d6a4f; }}
-            textarea {{
-                width: 100%;
-                padding: 10px;
-                font-size: 16px;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-            }}
-            button, input[type="submit"] {{
-                background-color: #2d6a4f;
-                color: white;
-                padding: 8px 16px;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-            }}
-            button:hover, input[type="submit"]:hover {{
-                background-color: #40916c;
-            }}
-            .footer {{
-                margin-top: 40px;
-                font-size: 14px;
-                color: #666;
-                text-align: center;
-            }}
-            .template-buttons button {{
-                margin: 4px 4px 4px 0;
-            }}
-            pre {{
-                background-color: #ffffff;
-                padding: 15px;
-                border-radius: 6px;
-                white-space: pre-wrap;
-                box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            }}
-        </style>
-    </head>
-    <body>
-        <h2>🌞 SEL Lesson Generator</h2>
+    <body style="font-family:Arial; padding:20px;">
+        <h2>🌸 SEL Lesson Generator</h2>
 
-        <div class="template-buttons">
+        <div style="margin-bottom: 10px;">
             <strong>Try a template:</strong><br>
             <button type="button" onclick="setPrompt(`Create a 10-minute 3rd grade math lesson on fractions that supports self-regulation. Include a game and quick reflection.`)">3rd Grade Math + Self-Reg</button>
             <button type="button" onclick="setPrompt(`Design a 15-minute science group activity for 5th graders focused on ecosystems. Emphasize teamwork and communication.`)">Science Groupwork + Relationship Skills</button>
@@ -90,44 +41,40 @@ def home():
         </div>
 
         <form method="POST">
-            <textarea name="prompt" rows="5" placeholder="Type your custom prompt here..."></textarea><br>
+            <textarea name="prompt" rows="5" cols="60" placeholder="e.g. 10-minute 4th grade math lesson on fractions + self-regulation"></textarea><br><br>
             <input type="submit" value="Generate Lesson">
         </form>
 
         <div style="margin-top: 20px;">{output}</div>
         {download_button}
 
-        <div class="footer">Built with ❤️ by Shane | Powered by GPT-4</div>
-
         <script>
-            function setPrompt(text) {
+            function setPrompt(text) {{
                 document.querySelector('textarea[name="prompt"]').value = text;
-            }
+            }}
         </script>
     </body>
     </html>
     """
-    output = ""
-    download_button = ""
 
     if request.method == "POST":
         prompt = request.form["prompt"]
         lesson = generate_lesson(prompt)
-        output = f"<pre>{lesson}</pre>"
         download_button = """
-        <form method="GET" action="/download">
-            <button type="submit">⬇️ Download Lesson as .txt</button>
-        </form>
+            <form method="GET" action="/download">
+                <button type="submit">📥 Download Lesson as .txt</button>
+            </form>
         """
+        return html.format(output=f"<pre>{lesson}</pre>", download_button=download_button)
 
-    return html.format(output=output, download_button=download_button)
+    return html.format(output="", download_button="")
 
-@app.route("/download", methods=["GET"])
+# Download route
+@app.route("/download")
 def download():
     with open("lesson.txt", "w", encoding="utf-8") as f:
         f.write(lesson_text)
     return send_file("lesson.txt", as_attachment=True)
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
 
-
+# Start the app
+app.run(host="0.0.0.0", port=81)
