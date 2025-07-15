@@ -7,7 +7,6 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # Store last output for download
 last_lesson = ""
-last_prompt = ""
 
 # HTML Template with Jinja
 HTML_TEMPLATE = """
@@ -261,11 +260,6 @@ HTML_TEMPLATE = """
                 <div class="output-box" id="lessonOutput">{{ output }}</div>
                 <div class="action-buttons">
                     <button class="action-btn copy-btn" onclick="copyText()">📋 Copy to Clipboard</button>
-                    <form method="POST" style="display: inline;">
-                        <input type="hidden" name="prompt" value="{{ last_prompt }}">
-                        <input type="hidden" name="regenerate" value="true">
-                        <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">🔄 Regenerate</button>
-                    </form>
                     <form method="GET" action="/download" style="display: inline;">
                         <button type="submit" class="action-btn download-btn">⬇️ Download as .txt</button>
                     </form>
@@ -310,29 +304,23 @@ def home():
 
     if request.method == "POST":
         prompt = request.form["prompt"]
-        is_regenerate = request.form.get("regenerate") == "true"
-        
-        # Use higher temperature for regeneration to get different results
-        temperature = 0.9 if is_regenerate else 0.7
-        
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful lesson planning assistant that combines academic topics with social-emotional learning."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=temperature,
+            temperature=0.7,
             max_tokens=800
         )
         output = response.choices[0].message.content
         last_lesson = output
-        last_prompt = prompt
 
         # Save to file
         with open("lesson.txt", "w", encoding="utf-8") as f:
             f.write(output)
 
-    return render_template_string(HTML_TEMPLATE, output=last_lesson, last_prompt=last_prompt)
+    return render_template_string(HTML_TEMPLATE, output=last_lesson)
 
 # Download route
 @app.route("/download")
