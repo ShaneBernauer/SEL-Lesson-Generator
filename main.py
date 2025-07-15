@@ -22,90 +22,90 @@ html = """
     <title>SEL Lesson Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * {{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }}
+        }
         
-        body {{
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #f39c12 100%);
             min-height: 100vh;
             padding: 20px;
-        }}
+        }
         
-        .container {{
+        .container {
             max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-        }}
+        }
         
-        .header {{
+        .header {
             background: linear-gradient(135deg, #2c5aa0 0%, #f39c12 100%);
             color: white;
             padding: 30px;
             text-align: center;
-        }}
+        }
         
-        .header h1 {{
+        .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }}
+        }
         
-        .header p {{
+        .header p {
             font-size: 1.1em;
             opacity: 0.9;
-        }}
+        }
         
-        .form-container {{
+        .form-container {
             padding: 40px;
             background: #f8f9fa;
-        }}
+        }
         
-        .form-grid {{
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
             margin-bottom: 30px;
-        }}
+        }
         
-        .form-group {{
+        .form-group {
             display: flex;
             flex-direction: column;
-        }}
+        }
         
-        .form-group.full-width {{
+        .form-group.full-width {
             grid-column: 1 / -1;
-        }}
+        }
         
-        label {{
+        label {
             font-weight: 600;
             color: #2c5aa0;
             margin-bottom: 8px;
             font-size: 1.1em;
-        }}
+        }
         
-        input[type=text], select {{
+        input[type=text], select, textarea {
             padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s ease;
             background: white;
-        }}
+        }
         
-        input[type=text]:focus, select:focus {{
+        input[type=text]:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #f39c12;
             box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
-        }}
+        }
         
-        .btn {{
+        .btn {
             padding: 15px 30px;
             border: none;
             border-radius: 10px;
@@ -117,86 +117,86 @@ html = """
             display: inline-block;
             text-align: center;
             margin: 5px;
-        }}
+        }
         
-        .btn-primary {{
+        .btn-primary {
             background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
-        }}
+        }
         
-        .btn-primary:hover {{
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
-        }}
+        }
         
-        .btn-secondary {{
+        .btn-secondary {
             background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
-        }}
+        }
         
-        .btn-secondary:hover {{
+        .btn-secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(44, 90, 160, 0.4);
-        }}
+        }
         
-        .btn-success {{
+        .btn-success {
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
-        }}
+        }
         
-        .btn-success:hover {{
+        .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
-        }}
+        }
         
-        .output-container {{
+        .output-container {
             background: white;
             margin: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             overflow: hidden;
-        }}
+        }
         
-        .output-header {{
+        .output-header {
             background: linear-gradient(135deg, #2c5aa0 0%, #f39c12 100%);
             color: white;
             padding: 20px;
             font-size: 1.4em;
             font-weight: 600;
-        }}
+        }
         
-        .output-content {{
+        .output-content {
             padding: 30px;
             line-height: 1.8;
             color: #333;
             font-size: 16px;
-        }}
+        }
         
-        .action-buttons {{
+        .action-buttons {
             padding: 20px;
             background: #f8f9fa;
             display: flex;
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
-        }}
+        }
         
-        @media (max-width: 768px) {{
-            .form-grid {{
+        @media (max-width: 768px) {
+            .form-grid {
                 grid-template-columns: 1fr;
-            }}
+            }
             
-            .action-buttons {{
+            .action-buttons {
                 flex-direction: column;
-            }}
+            }
             
-            .btn {{
+            .btn {
                 width: 100%;
-            }}
-        }}
+            }
+        }
     </style>
 </head>
 <body>
