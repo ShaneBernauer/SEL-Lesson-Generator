@@ -250,10 +250,47 @@ html = """
                 </div>
 
                 <div style="text-align: center;">
+                    <button type="button" onclick="showPrompt()" class="btn btn-secondary">👁️ Preview Prompt</button>
                     <button type="submit" name="action" value="generate" class="btn btn-primary">✨ Generate Lesson Plan</button>
                 </div>
             </form>
+            
+            <!-- Prompt Preview/Edit Section -->
+            <div id="promptSection" style="display: none; margin-top: 30px; padding: 25px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <h3 style="color: #2c5aa0; margin-bottom: 15px;">📝 Generated Prompt</h3>
+                <form method="POST" id="promptForm">
+                    <textarea id="promptText" name="custom_prompt" rows="8" style="width: 100%; padding: 15px; border: 2px solid #e9ecef; border-radius: 10px; font-family: 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; resize: vertical;" placeholder="Edit the prompt before generating..."></textarea>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button type="submit" name="action" value="generate_custom" class="btn btn-primary">✨ Generate with Custom Prompt</button>
+                        <button type="button" onclick="hidePrompt()" class="btn btn-secondary">❌ Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        <script>
+            function showPrompt() {
+                const grade = document.getElementById('grade').value;
+                const subject = document.getElementById('subject').value;
+                const topic = document.getElementById('topic').value;
+                const sel = document.getElementById('sel').value;
+                
+                if (!topic.trim()) {
+                    alert('Please enter an academic topic first.');
+                    return;
+                }
+                
+                const prompt = `Design a comprehensive integrated lesson plan for ${grade} students on the topic of '${topic}' in ${subject}. Include an SEL focus on ${sel}. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
+                
+                document.getElementById('promptText').value = prompt;
+                document.getElementById('promptSection').style.display = 'block';
+                document.getElementById('promptText').focus();
+            }
+            
+            function hidePrompt() {
+                document.getElementById('promptSection').style.display = 'none';
+            }
+        </script>
 
         {output}
 
@@ -361,6 +398,13 @@ def home():
                 f"reflection questions that connect to the SEL focus, and an exit slip. "
                 f"Make it detailed and practical for teachers to implement."
             )
+
+        elif action == "generate_custom":
+            custom_prompt = request.form.get("custom_prompt", "").strip()
+            if custom_prompt:
+                last_prompt = custom_prompt
+            else:
+                return "Custom prompt cannot be empty", 400
 
         elif action == "regenerate" and last_prompt:
             pass  # just reuse the last prompt
