@@ -280,7 +280,7 @@ html = """
                     return;
                 }
                 
-                const prompt = `Design a comprehensive integrated lesson plan for $${grade} students on the topic of '$${topic}' in $${subject}. Include an SEL focus on $${sel}. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
+                const prompt = 'Design a comprehensive integrated lesson plan for ' + grade + ' students on the topic of \'' + topic + '\' in ' + subject + '. Include an SEL focus on ' + sel + '. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.';
                 
                 document.getElementById('promptText').value = prompt;
                 document.getElementById('promptSection').style.display = 'block';
