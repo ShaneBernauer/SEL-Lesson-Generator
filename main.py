@@ -439,7 +439,7 @@ def home():
             with open("lesson.txt", "w", encoding="utf-8") as f:
                 f.write(lesson)
 
-    return html.format(output=output, action_buttons=action_buttons)
+    return html.replace("{output}", output).replace("{action_buttons}", action_buttons)
 
 @app.route("/download/<format_type>", methods=["GET"])
 def download(format_type):
