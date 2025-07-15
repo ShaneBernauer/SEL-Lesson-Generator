@@ -31,23 +31,23 @@ def home():
         <title>SEL Lesson Generator</title>
         <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
         <style>
-            body {
+            body {{
                 font-family: 'Nunito', sans-serif;
                 background-color: #f1f5f9;
                 padding: 30px;
                 max-width: 800px;
                 margin: auto;
                 color: #333;
-            }
-            h2 { color: #2d6a4f; }
-            textarea {
+            }}
+            h2 {{ color: #2d6a4f; }}
+            textarea {{
                 width: 100%;
                 padding: 10px;
                 font-size: 16px;
                 border-radius: 6px;
                 border: 1px solid #ccc;
-            }
-            button, input[type="submit"] {
+            }}
+            button, input[type="submit"] {{
                 background-color: #2d6a4f;
                 color: white;
                 padding: 8px 16px;
@@ -55,26 +55,26 @@ def home():
                 border-radius: 6px;
                 cursor: pointer;
                 font-size: 14px;
-            }
-            button:hover, input[type="submit"]:hover {
+            }}
+            button:hover, input[type="submit"]:hover {{
                 background-color: #40916c;
-            }
-            .footer {
+            }}
+            .footer {{
                 margin-top: 40px;
                 font-size: 14px;
                 color: #666;
                 text-align: center;
-            }
-            .template-buttons button {
+            }}
+            .template-buttons button {{
                 margin: 4px 4px 4px 0;
-            }
-            pre {
+            }}
+            pre {{
                 background-color: #ffffff;
                 padding: 15px;
                 border-radius: 6px;
                 white-space: pre-wrap;
                 box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            }
+            }}
         </style>
     </head>
     <body>
