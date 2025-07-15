@@ -1,80 +1,125 @@
-from openai import OpenAI
+from flask import Flask, request, send_file, render_template_string
+import openai
 import os
-from flask import Flask, request, send_file
-
-# Get API key from Replit Secrets
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 app = Flask(__name__)
-lesson_text = ""  # Stores the latest lesson
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
-# Generate lesson from prompt
-def generate_lesson(prompt_text):
-    global lesson_text
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an expert lesson designer who blends SEL with academic content. Keep the response under 500 words."},
-            {"role": "user", "content": prompt_text}
-        ],
-        temperature=0.7,
-        max_tokens=800
-    )
-    lesson_text = response.choices[0].message.content
-    return lesson_text
+# Store last output for download
+last_lesson = ""
 
-# Home route with form and buttons
+# HTML Template with Jinja
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEL Lesson Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            padding: 20px;
+            background-color: #f6f8fa;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            text-align: center;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output-box {
+            white-space: pre-wrap;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>🌱 SEL + Academic Lesson Generator</h2>
+
+    <div>
+        <strong>Example Templates:</strong><br>
+        <button onclick="setPrompt(`Create a 10-minute 3rd grade math lesson on fractions that supports self-regulation. Include a game and quick reflection.`)">3rd Grade Math</button>
+        <button onclick="setPrompt(`Design a 15-minute science group activity for 5th graders focused on ecosystems. Emphasize teamwork and communication.`)">5th Grade Science</button>
+        <button onclick="setPrompt(`Write a 10-minute mini-lesson about empathy using a historical event like the Civil Rights Movement.`)">History + Empathy</button>
+        <button onclick="setPrompt(`Create a short check-in routine to start the school day that builds growth mindset.`)">Morning Check-In</button>
+    </div>
+
+    <form method="POST">
+        <textarea name="prompt" rows="5" placeholder="e.g. Design a lesson on empathy and animal habitats for 2nd grade."></textarea><br><br>
+        <button type="submit">Generate Lesson</button>
+    </form>
+
+    {% if output %}
+        <div class="output-box" id="lessonOutput">{{ output }}</div>
+        <button onclick="copyText()">📋 Copy to Clipboard</button>
+        <form method="GET" action="/download">
+            <button type="submit">⬇️ Download as .txt</button>
+        </form>
+    {% endif %}
+
+    <script>
+        function setPrompt(text) {
+            document.querySelector('textarea[name="prompt"]').value = text;
+        }
+
+        function copyText() {
+            const text = document.getElementById("lessonOutput").innerText;
+            navigator.clipboard.writeText(text)
+                .then(() => alert("Lesson copied!"))
+                .catch(err => alert("Failed to copy: " + err));
+        }
+    </script>
+</body>
+</html>
+"""
+
+# Home route
 @app.route("/", methods=["GET", "POST"])
 def home():
-    html = """
-    <html>
-    <body style="font-family:Arial; padding:20px;">
-        <h2>🌸 SEL Lesson Generator</h2>
-
-        <div style="margin-bottom: 10px;">
-            <strong>Try a template:</strong><br>
-            <button type="button" onclick="setPrompt(`Create a 10-minute 3rd grade math lesson on fractions that supports self-regulation. Include a game and quick reflection.`)">3rd Grade Math + Self-Reg</button>
-            <button type="button" onclick="setPrompt(`Design a 15-minute science group activity for 5th graders focused on ecosystems. Emphasize teamwork and communication.`)">Science Groupwork + Relationship Skills</button>
-            <button type="button" onclick="setPrompt(`Write a 10-minute history mini-lesson on the Civil Rights Movement for 6th grade. Focus on empathy and perspective-taking.`)">History + Empathy</button>
-            <button type="button" onclick="setPrompt(`Create a morning check-in with a growth mindset focus for 2nd graders. Include a mood scale and short activity.`)">Morning Check-In + Growth Mindset</button>
-            <button type="button" onclick="setPrompt(`Build a 20-minute ELA writing activity for 4th grade that helps students manage frustration during editing.`)">ELA + Frustration Tolerance</button>
-        </div>
-
-        <form method="POST">
-            <textarea name="prompt" rows="5" cols="60" placeholder="e.g. 10-minute 4th grade math lesson on fractions + self-regulation"></textarea><br><br>
-            <input type="submit" value="Generate Lesson">
-        </form>
-
-        <div style="margin-top: 20px;">{output}</div>
-        {download_button}
-
-        <script>
-            function setPrompt(text) {{
-                document.querySelector('textarea[name="prompt"]').value = text;
-            }}
-        </script>
-    </body>
-    </html>
-    """
+    global last_lesson
+    output = ""
 
     if request.method == "POST":
         prompt = request.form["prompt"]
-        lesson = generate_lesson(prompt)
-        download_button = """
-            <form method="GET" action="/download">
-                <button type="submit">📥 Download Lesson as .txt</button>
-            </form>
-        """
-        return html.format(output=f"<pre>{lesson}</pre>", download_button=download_button)
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful lesson planning assistant that combines academic topics with social-emotional learning."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+        output = response.choices[0].message.content
+        last_lesson = output
 
-    return html.format(output="", download_button="")
+        # Save to file
+        with open("lesson.txt", "w", encoding="utf-8") as f:
+            f.write(output)
+
+    return render_template_string(HTML_TEMPLATE, output=last_lesson)
 
 # Download route
 @app.route("/download")
 def download():
-    with open("lesson.txt", "w", encoding="utf-8") as f:
-        f.write(lesson_text)
     return send_file("lesson.txt", as_attachment=True)
+
+
 
 # Start the app
 app.run(host="0.0.0.0", port=81)
