@@ -218,6 +218,9 @@ html = """
                             <option value="3rd">3rd Grade</option>
                             <option value="4th">4th Grade</option>
                             <option value="5th">5th Grade</option>
+                            <option value="6th">6th Grade</option>
+                            <option value="7th">7th Grade</option>
+                            <option value="8th">8th Grade</option>
                         </select>
                     </div>
 
