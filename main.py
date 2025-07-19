@@ -258,6 +258,12 @@ html = """
                 </div>
             </form>
             
+            <!-- Prompt History Section -->
+            <div style="margin-top: 30px; padding: 25px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <h3 style="color: #2c5aa0; margin-bottom: 15px;">📚 Prompt History</h3>
+                {prompt_history_html}
+            </div>
+            
             <!-- Prompt Preview/Edit Section -->
             <div id="promptSection" style="display: none; margin-top: 30px; padding: 25px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
                 <h3 style="color: #2c5aa0; margin-bottom: 15px;">📝 Generated Prompt</h3>
@@ -312,6 +318,28 @@ def generate_lesson(prompt):
         temperature=0.7,
     )
     return response.choices[0].message.content.strip()
+
+def add_to_history(grade, subject, topic, sel):
+    """Add a new prompt to history, keeping only the last 10"""
+    global prompt_history
+    
+    prompt_entry = {
+        'grade': grade,
+        'subject': subject,
+        'topic': topic,
+        'sel': sel,
+        'timestamp': f"{grade} - {subject} - {topic} - {sel}"
+    }
+    
+    # Remove if already exists to avoid duplicates
+    prompt_history = [p for p in prompt_history if not (
+        p['grade'] == grade and p['subject'] == subject and 
+        p['topic'] == topic and p['sel'] == sel
+    )]
+    
+    # Add to beginning and keep only last 10
+    prompt_history.insert(0, prompt_entry)
+    prompt_history = prompt_history[:10]
 
 def create_pdf(lesson_content, filename="lesson.pdf"):
     """Create a nicely formatted PDF of the lesson"""
@@ -377,6 +405,7 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
 
 last_prompt = ""
 last_lesson = ""
+prompt_history = []  # Store last 10 prompts
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -392,7 +421,26 @@ def home():
             subject = request.form["subject"]
             topic = request.form["topic"]
             sel = request.form["sel"]
+            
+            # Add to history
+            add_to_history(grade, subject, topic, sel)
 
+            last_prompt = (
+                f"Design a comprehensive integrated lesson plan for {grade} students "
+                f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}. "
+                f"The lesson should include: a creative hook, clear learning objectives, "
+                f"direct instruction, an engaging activity or game, guided practice, "
+                f"reflection questions that connect to the SEL focus, and an exit slip. "
+                f"Make it detailed and practical for teachers to implement."
+            )
+            
+        elif action == "use_history":
+            # Handle clicking on a history item
+            grade = request.form["grade"]
+            subject = request.form["subject"]
+            topic = request.form["topic"]
+            sel = request.form["sel"]
+            
             last_prompt = (
                 f"Design a comprehensive integrated lesson plan for {grade} students "
                 f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}. "
@@ -442,7 +490,36 @@ def home():
             with open("lesson.txt", "w", encoding="utf-8") as f:
                 f.write(lesson)
 
-    return html.replace("{output}", output).replace("{action_buttons}", action_buttons)
+    # Generate prompt history HTML
+    prompt_history_html = ""
+    if prompt_history:
+        prompt_history_html = "<div style='max-height: 200px; overflow-y: auto;'>"
+        for i, prompt in enumerate(prompt_history):
+            prompt_history_html += f"""
+            <div style="margin-bottom: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #f39c12;">
+                <div style="font-weight: 600; color: #2c5aa0; margin-bottom: 5px;">
+                    {prompt['grade']} • {prompt['subject']} • {prompt['sel']}
+                </div>
+                <div style="color: #666; margin-bottom: 8px;">
+                    Topic: {prompt['topic']}
+                </div>
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="action" value="use_history">
+                    <input type="hidden" name="grade" value="{prompt['grade']}">
+                    <input type="hidden" name="subject" value="{prompt['subject']}">
+                    <input type="hidden" name="topic" value="{prompt['topic']}">
+                    <input type="hidden" name="sel" value="{prompt['sel']}">
+                    <button type="submit" style="background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                        ↻ Use This Prompt
+                    </button>
+                </form>
+            </div>
+            """
+        prompt_history_html += "</div>"
+    else:
+        prompt_history_html = "<p style='color: #666; font-style: italic;'>No prompt history yet. Generate your first lesson to see prompts here!</p>"
+
+    return html.replace("{output}", output).replace("{action_buttons}", action_buttons).replace("{prompt_history_html}", prompt_history_html)
 
 @app.route("/download/<format_type>", methods=["GET"])
 def download(format_type):
