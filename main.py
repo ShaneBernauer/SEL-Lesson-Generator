@@ -1,6 +1,6 @@
 
 import os
-from flask import Flask, request, send_file, make_response
+from flask import Flask, request, send_file, make_response, render_template
 from openai import OpenAI
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
@@ -208,6 +208,9 @@ html = """
         <div class="header">
             <h1>🧠 SEL Lesson Generator</h1>
             <p>Create engaging lessons that combine academics with social-emotional learning</p>
+            <div style="margin-top: 15px;">
+                <a href="/dashboard" class="btn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">📚 View Saved Lessons</a>
+            </div>
         </div>
         
         <div class="form-container">
@@ -561,6 +564,11 @@ def download(format_type):
         return response
     else:
         return "Invalid format", 400
+
+@app.route('/dashboard')
+def dashboard():
+    lessons = Lesson.query.order_by(Lesson.created_at.desc()).all()
+    return render_template('dashboard.html', lessons=lessons)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=81)
