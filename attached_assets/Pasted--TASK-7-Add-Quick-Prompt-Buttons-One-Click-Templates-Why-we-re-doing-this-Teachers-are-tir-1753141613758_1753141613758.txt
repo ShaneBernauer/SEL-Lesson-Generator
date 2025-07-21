@@ -1,0 +1,70 @@
+✅ TASK 7: Add “Quick Prompt Buttons” – One-Click Templates
+🎯 Why we're doing this:
+Teachers are tired. Don’t make them build a perfect dropdown combo every time.
+
+With one click, they get a solid, editable prompt.
+
+This makes BeaconSEL feel smart, like it knows the classroom.
+
+🪜 Step-by-Step Instructions for Replit
+✅ STEP 1: Add Buttons for Common Lesson Prompts
+👨‍💻 File: templates/index.html
+🔍 Find a good spot above your form (right after <form> tag or intro text). Then paste:
+
+html
+Copy
+Edit
+<div class="mb-4">
+  <h5>🧪 Quick Lesson Starters:</h5>
+  <button class="btn btn-outline-primary me-2 mb-2" onclick="loadTemplate('2nd', 'ELA', 'Main Idea', 'Empathy')">ELA + Empathy (2nd)</button>
+  <button class="btn btn-outline-success me-2 mb-2" onclick="loadTemplate('4th', 'Math', 'Fractions', 'Self-Regulation')">Math + Self-Reg (4th)</button>
+  <button class="btn btn-outline-warning me-2 mb-2" onclick="loadTemplate('5th', 'Science', 'Ecosystems', 'Relationship Skills')">Science + Relationships (5th)</button>
+  <button class="btn btn-outline-dark me-2 mb-2" onclick="loadTemplate('3rd', 'History', 'Community Rules', 'Responsible Decision-Making')">History + Decisions (3rd)</button>
+</div>
+✅ These are just starter examples. You can change the grade, subject, topic, or SEL skill as needed.
+
+✅ STEP 2: Add the JavaScript to Load These Into the Form
+🔻 Scroll to the bottom of index.html, just before </body>, and add:
+
+html
+Copy
+Edit
+<script>
+function loadTemplate(grade, subject, topic, sel) {
+  document.querySelector("select[name='grade']").value = grade;
+  document.querySelector("select[name='subject']").value = subject;
+  document.querySelector("input[name='topic']").value = topic;
+  document.querySelector("select[name='sel_focus']").value = sel;
+
+  // Trigger prompt preview update if your app uses one
+  if (typeof updatePromptPreview === 'function') {
+    updatePromptPreview();
+  }
+}
+</script>
+✅ This fills in all the fields in one click, like a saved preset.
+
+✅ STEP 3 (Optional): Add a Section Header or Border
+You can visually group this with:
+
+html
+Copy
+Edit
+<hr class="my-4">
+or wrap it in a card like:
+
+html
+Copy
+Edit
+<div class="card p-3 bg-light border rounded">
+  <!-- buttons inside -->
+</div>
+🧠 Result:
+Teachers now get:
+
+🔘 1-click lesson setup
+
+✍️ Editable before submission
+
+💡 A feeling that the tool “already knows what I need”
+
