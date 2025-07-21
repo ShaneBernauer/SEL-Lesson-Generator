@@ -352,7 +352,19 @@ def voice_command():
         db.session.add(lesson)
         db.session.commit()
 
-        return jsonify({"lesson": lesson_text})
+        # Update global variables for PDF export
+        global last_lesson, last_prompt
+        last_lesson = lesson_text
+        last_prompt = prompt
+        
+        # Save text version for download
+        with open("lesson.txt", "w", encoding="utf-8") as f:
+            f.write(lesson_text)
+
+        return jsonify({
+            "lesson": lesson_text,
+            "download_available": True
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

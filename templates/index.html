@@ -151,7 +151,22 @@ recognition.onresult = function(event) {
   .then(data => {
     if (data.lesson) {
       const lessonDiv = document.createElement('div');
-      lessonDiv.innerHTML = `<div class='card p-3 mt-4'><strong>🎤 Voice-Generated Lesson:</strong><br><div style='white-space: pre-wrap;'>${data.lesson}</div></div>`;
+      lessonDiv.innerHTML = `
+        <div class='card shadow-sm mt-4'>
+          <div class='card-header bg-warning text-dark'>
+            <h5 class='mb-0'>🎤 Voice-Generated Lesson Plan</h5>
+          </div>
+          <div class='card-body'>
+            <div style='white-space: pre-wrap; line-height: 1.8; color: #333;'>${data.lesson}</div>
+          </div>
+        </div>
+        ${data.download_available ? `
+        <div class="text-center mt-4 mb-4">
+          <a href="/download/txt" class="btn btn-success me-2">📄 Download as TXT</a>
+          <a href="/download/pdf" class="btn btn-warning">📑 Download as PDF</a>
+        </div>
+        ` : ''}
+      `;
       document.body.appendChild(lessonDiv);
     } else {
       alert("❌ Error: " + (data.error || "Unknown error"));
