@@ -279,6 +279,25 @@ def dashboard():
     lessons = Lesson.query.order_by(Lesson.created_at.desc()).all()
     return render_template('dashboard.html', lessons=lessons)
 
+@app.route('/lesson/<int:lesson_id>')
+def view_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    return render_template('lesson_detail.html', lesson=lesson)
+
+@app.route('/set_lesson_for_download', methods=['POST'])
+def set_lesson_for_download():
+    global last_lesson, last_prompt
+    lesson_id = request.json.get('lesson_id')
+    lesson = Lesson.query.get_or_404(lesson_id)
+    last_lesson = lesson.lesson_text
+    last_prompt = f"Lesson for {lesson.grade} grade {lesson.subject} on {lesson.topic} with SEL focus on {lesson.sel_focus}"
+    
+    # Save text version for download
+    with open("lesson.txt", "w", encoding="utf-8") as f:
+        f.write(lesson.lesson_text)
+    
+    return jsonify({"success": True})
+
 @app.route('/voice_command', methods=['POST'])
 def voice_command():
     try:

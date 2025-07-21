@@ -1,0 +1,92 @@
+
+{% extends "layout.html" %}
+{% block title %}{{ lesson.topic }} | BeaconSEL{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ lesson.topic }}</li>
+        </ol>
+      </nav>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">📋 {{ lesson.grade }} Grade Lesson Plan</h4>
+            <h6 class="mb-0 text-muted">{{ lesson.subject }} | {{ lesson.sel_focus }}</h6>
+          </div>
+          <small class="text-muted">{{ lesson.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <strong>📚 Subject:</strong><br>
+            <span class="text-muted">{{ lesson.subject }}</span>
+          </div>
+          <div class="col-md-3">
+            <strong>🎯 Topic:</strong><br>
+            <span class="text-muted">{{ lesson.topic }}</span>
+          </div>
+          <div class="col-md-3">
+            <strong>🧠 SEL Focus:</strong><br>
+            <span class="text-muted">{{ lesson.sel_focus }}</span>
+          </div>
+          <div class="col-md-3">
+            <strong>👥 Grade Level:</strong><br>
+            <span class="text-muted">{{ lesson.grade }}</span>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="lesson-content">
+          <h5 class="text-primary mb-3">📖 Full Lesson Plan</h5>
+          <div style="white-space: pre-wrap; line-height: 1.8; color: #333;">{{ lesson.lesson_text }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4 mb-4">
+      <a href="/dashboard" class="btn btn-outline-secondary me-2">← Back to Dashboard</a>
+      <button onclick="downloadLesson()" class="btn btn-success me-2">📄 Download as TXT</button>
+      <button onclick="downloadLessonPDF()" class="btn btn-warning">📑 Download as PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function downloadLesson() {
+  const content = {{ lesson.lesson_text|tojson }};
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'lesson_{{ lesson.id }}_{{ lesson.topic|replace(" ", "_") }}.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadLessonPDF() {
+  // Set the global lesson for PDF generation
+  fetch('/set_lesson_for_download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lesson_id: {{ lesson.id }} })
+  })
+  .then(() => {
+    window.open('/download/pdf', '_blank');
+  });
+}
+</script>
+
+{% endblock %}
