@@ -73,7 +73,7 @@
         <h5 class="mb-0">📚 Prompt History</h5>
       </div>
       <div class="card-body">
-        {prompt_history_html}
+        {{ prompt_history_html|safe }}
       </div>
     </div>
 
@@ -117,8 +117,8 @@
       }
     </script>
 
-    {output}
-    {action_buttons}
+    {{ output|safe }}
+    {{ action_buttons|safe }}
   </div>
 </div>
 
