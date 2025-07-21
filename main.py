@@ -489,24 +489,26 @@ def home():
                 db.session.commit()
             
             output = f"""
-            <div class="output-container">
-                <div class="output-header">
-                    📋 Your Generated Lesson Plan
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">📋 Your Generated Lesson Plan</h5>
                 </div>
-                <div class="output-content">
-                    {lesson.replace(chr(10), '<br>')}
+                <div class="card-body">
+                    <div style="line-height: 1.8; color: #333;">
+                        {lesson.replace(chr(10), '<br>')}
+                    </div>
                 </div>
             </div>
             """
             
             action_buttons = f"""
-            <div class="action-buttons">
+            <div class="text-center mt-4 mb-4">
                 <form method="POST" style="display: inline;">
                     <input type="hidden" name="action" value="regenerate">
-                    <button type="submit" class="btn btn-secondary">🔄 Regenerate Lesson</button>
+                    <button type="submit" class="btn btn-outline-secondary me-2">🔄 Regenerate Lesson</button>
                 </form>
-                <a href="/download/txt" class="btn btn-success">📄 Download as TXT</a>
-                <a href="/download/pdf" class="btn btn-primary">📑 Download as PDF</a>
+                <a href="/download/txt" class="btn btn-success me-2">📄 Download as TXT</a>
+                <a href="/download/pdf" class="btn btn-warning">📑 Download as PDF</a>
             </div>
             """
             
@@ -517,14 +519,14 @@ def home():
     # Generate prompt history HTML
     prompt_history_html = ""
     if prompt_history:
-        prompt_history_html = "<div style='max-height: 200px; overflow-y: auto;'>"
+        prompt_history_html = "<div style='max-height: 300px; overflow-y: auto;'>"
         for i, prompt in enumerate(prompt_history):
             prompt_history_html += f"""
-            <div style="margin-bottom: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #f39c12;">
-                <div style="font-weight: 600; color: #2c5aa0; margin-bottom: 5px;">
+            <div class="border-start border-warning border-3 ps-3 mb-3">
+                <div class="fw-semibold text-primary mb-1">
                     {prompt['grade']} • {prompt['subject']} • {prompt['sel']}
                 </div>
-                <div style="color: #666; margin-bottom: 8px;">
+                <div class="text-muted mb-2">
                     Topic: {prompt['topic']}
                 </div>
                 <form method="POST" style="display: inline;">
@@ -533,7 +535,7 @@ def home():
                     <input type="hidden" name="subject" value="{prompt['subject']}">
                     <input type="hidden" name="topic" value="{prompt['topic']}">
                     <input type="hidden" name="sel" value="{prompt['sel']}">
-                    <button type="submit" style="background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                    <button type="submit" class="btn btn-sm btn-warning">
                         ↻ Use This Prompt
                     </button>
                 </form>
@@ -541,9 +543,12 @@ def home():
             """
         prompt_history_html += "</div>"
     else:
-        prompt_history_html = "<p style='color: #666; font-style: italic;'>No prompt history yet. Generate your first lesson to see prompts here!</p>"
+        prompt_history_html = "<p class='text-muted fst-italic'>No prompt history yet. Generate your first lesson to see prompts here!</p>"
 
-    return html.replace("{output}", output).replace("{action_buttons}", action_buttons).replace("{prompt_history_html}", prompt_history_html)
+    return render_template('index.html', 
+                         output=output, 
+                         action_buttons=action_buttons, 
+                         prompt_history_html=prompt_history_html)
 
 @app.route("/download/<format_type>", methods=["GET"])
 def download(format_type):

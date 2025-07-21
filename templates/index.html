@@ -1,0 +1,123 @@
+
+{% extends "layout.html" %}
+{% block title %}Lesson Generator | BeaconSEL{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="text-center mb-4">
+      <h1 class="display-5 fw-bold text-primary">🧠 SEL Lesson Generator</h1>
+      <p class="lead text-muted">Create engaging lessons that combine academics with social-emotional learning</p>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="POST">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="grade" class="form-label fw-semibold">📚 Grade Level</label>
+              <select name="grade" id="grade" class="form-select">
+                <option value="Kindergarten">Kindergarten</option>
+                <option value="1st">1st Grade</option>
+                <option value="2nd">2nd Grade</option>
+                <option value="3rd">3rd Grade</option>
+                <option value="4th">4th Grade</option>
+                <option value="5th">5th Grade</option>
+                <option value="6th">6th Grade</option>
+                <option value="7th">7th Grade</option>
+                <option value="8th">8th Grade</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="subject" class="form-label fw-semibold">📖 Subject</label>
+              <select name="subject" id="subject" class="form-select">
+                <option value="Math">Mathematics</option>
+                <option value="ELA">English Language Arts</option>
+                <option value="Science">Science</option>
+                <option value="Social Studies">Social Studies</option>
+                <option value="History">History</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="topic" class="form-label fw-semibold">🎯 Academic Topic</label>
+              <input type="text" name="topic" id="topic" class="form-control" placeholder="e.g., fractions, photosynthesis, American Revolution" required>
+            </div>
+
+            <div class="col-12">
+              <label for="sel" class="form-label fw-semibold">❤️ SEL Focus</label>
+              <select name="sel" id="sel" class="form-select">
+                <option value="Self-Awareness">Self-Awareness</option>
+                <option value="Self-Management">Self-Management</option>
+                <option value="Social Awareness">Social Awareness</option>
+                <option value="Relationship Skills">Relationship Skills</option>
+                <option value="Responsible Decision-Making">Responsible Decision-Making</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <button type="button" onclick="showPrompt()" class="btn btn-outline-secondary me-2">👁️ Preview Prompt</button>
+            <button type="submit" name="action" value="generate" class="btn btn-warning">✨ Generate Lesson Plan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Prompt History Section -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">📚 Prompt History</h5>
+      </div>
+      <div class="card-body">
+        {prompt_history_html}
+      </div>
+    </div>
+
+    <!-- Prompt Preview/Edit Section -->
+    <div id="promptSection" style="display: none;" class="card shadow-sm mt-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">📝 Generated Prompt</h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" id="promptForm">
+          <textarea id="promptText" name="custom_prompt" rows="8" class="form-control mb-3" placeholder="Edit the prompt before generating..."></textarea>
+          <div class="text-center">
+            <button type="submit" name="action" value="generate_custom" class="btn btn-warning me-2">✨ Generate with Custom Prompt</button>
+            <button type="button" onclick="hidePrompt()" class="btn btn-secondary">❌ Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function showPrompt() {
+        const grade = document.getElementById('grade').value;
+        const subject = document.getElementById('subject').value;
+        const topic = document.getElementById('topic').value;
+        const sel = document.getElementById('sel').value;
+        
+        if (!topic.trim()) {
+          alert('Please enter an academic topic first.');
+          return;
+        }
+        
+        const prompt = `Design a comprehensive integrated lesson plan for ${grade} students on the topic of '${topic}' in ${subject}. Include an SEL focus on ${sel}. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
+        
+        document.getElementById('promptText').value = prompt;
+        document.getElementById('promptSection').style.display = 'block';
+        document.getElementById('promptText').focus();
+      }
+      
+      function hidePrompt() {
+        document.getElementById('promptSection').style.display = 'none';
+      }
+    </script>
+
+    {output}
+    {action_buttons}
+  </div>
+</div>
+
+{% endblock %}
