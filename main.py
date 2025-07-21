@@ -9,9 +9,13 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
 import io
+from models import db, Lesson
 
 load_dotenv()
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///lessons.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # HTML Template with modern orange/blue design
@@ -463,6 +467,23 @@ def home():
         if last_prompt:
             lesson = generate_lesson(last_prompt)
             last_lesson = lesson
+            
+            # Save to database if we have the required fields
+            if action in ["generate", "use_history"]:
+                grade = request.form.get("grade", "")
+                subject = request.form.get("subject", "")
+                topic = request.form.get("topic", "")
+                sel = request.form.get("sel", "")
+                
+                lesson_record = Lesson(
+                    grade=grade,
+                    subject=subject,
+                    topic=topic,
+                    sel_focus=sel,
+                    lesson_text=lesson
+                )
+                db.session.add(lesson_record)
+                db.session.commit()
             
             output = f"""
             <div class="output-container">
