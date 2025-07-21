@@ -1,6 +1,6 @@
 
 import os
-from flask import Flask, request, send_file, make_response, render_template, render_template_string, jsonify
+from flask import Flask, request, send_file, make_response, render_template, render_template_string, jsonify, redirect
 from openai import OpenAI
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
@@ -297,6 +297,13 @@ def set_lesson_for_download():
         f.write(lesson.lesson_text)
     
     return jsonify({"success": True})
+
+@app.route('/toggle_favorite/<int:lesson_id>', methods=['POST'])
+def toggle_favorite(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    lesson.is_favorite = not lesson.is_favorite
+    db.session.commit()
+    return redirect('/dashboard')
 
 @app.route('/voice_command', methods=['POST'])
 def voice_command():
