@@ -288,19 +288,53 @@ def voice_command():
         if not command:
             return jsonify({"error": "No voice input detected"}), 400
 
-        if "fractions" in command and "empathy" in command:
+        # Extract grade level
+        grade = None
+        if "grade 4" in command or "fourth grade" in command or "4th grade" in command:
             grade = "4th"
-            subject = "Math"
-            topic = "Fractions"
-            sel_focus = "Empathy"
-        elif "volume" in command and "self" in command:
+        elif "grade 5" in command or "fifth grade" in command or "5th grade" in command:
             grade = "5th"
+        elif "grade 3" in command or "third grade" in command or "3rd grade" in command:
+            grade = "3rd"
+        
+        # Extract subject
+        subject = "Math"  # Default to Math for now
+        if "mathematics" in command or "math" in command:
             subject = "Math"
-            topic = "Volume of Prisms"
+        elif "science" in command:
+            subject = "Science"
+        elif "english" in command or "ela" in command:
+            subject = "ELA"
+        
+        # Extract SEL focus
+        sel_focus = None
+        if "self-awareness" in command or "self awareness" in command:
+            sel_focus = "Self-Awareness"
+        elif "empathy" in command:
+            sel_focus = "Empathy"
+        elif "self-regulation" in command or "self regulation" in command:
             sel_focus = "Self-Regulation"
-        else:
-            print("❗ Unknown voice command:", command)
-            return jsonify({"error": "Unknown voice command"}), 400
+        elif "social awareness" in command:
+            sel_focus = "Social Awareness"
+        elif "relationship" in command:
+            sel_focus = "Relationship Skills"
+        
+        # Extract topic (basic patterns)
+        topic = "General Math Skills"  # Default
+        if "fractions" in command:
+            topic = "Fractions"
+        elif "volume" in command:
+            topic = "Volume of Prisms"
+        elif "addition" in command:
+            topic = "Addition"
+        elif "multiplication" in command:
+            topic = "Multiplication"
+        
+        # Validate we have minimum required info
+        if not grade:
+            return jsonify({"error": "Please specify a grade level (e.g., 'grade 4', 'fourth grade')"}), 400
+        if not sel_focus:
+            return jsonify({"error": "Please specify an SEL focus (e.g., 'self-awareness', 'empathy')"}), 400
 
         # Generate the lesson
         prompt = f"Create a {grade} grade lesson about {topic} in {subject}, integrating the SEL skill of {sel_focus}. Make it short and usable."
