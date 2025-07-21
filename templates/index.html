@@ -12,7 +12,35 @@
 
     <button id="voiceBtn" class="btn btn-outline-secondary mb-3">🎤 Voice Mode</button>
 
-    <div class="card shadow-sm">
+    <!-- Quick Lesson Starters Section -->
+    <div class="card shadow-sm mb-4 bg-light">
+      <div class="card-body">
+        <h5 class="mb-3">🧪 Quick Lesson Starters</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('2nd', 'ELA', 'Main Idea', 'Empathy')">
+            📖 ELA + Empathy (2nd)
+          </button>
+          <button type="button" class="btn btn-outline-success btn-sm" onclick="loadTemplate('4th', 'Math', 'Fractions', 'Self-Regulation')">
+            🔢 Math + Self-Reg (4th)
+          </button>
+          <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadTemplate('5th', 'Science', 'Ecosystems', 'Relationship Skills')">
+            🔬 Science + Relationships (5th)
+          </button>
+          <button type="button" class="btn btn-outline-dark btn-sm" onclick="loadTemplate('3rd', 'Social Studies', 'Community Rules', 'Responsible Decision-Making')">
+            🏛️ History + Decisions (3rd)
+          </button>
+          <button type="button" class="btn btn-outline-info btn-sm" onclick="loadTemplate('1st', 'Math', 'Counting', 'Self-Awareness')">
+            🧮 Math + Self-Aware (1st)
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadTemplate('6th', 'Science', 'Weather Patterns', 'Social Awareness')">
+            🌦️ Science + Social (6th)
+          </button>
+        </div>
+        <small class="text-muted d-block mt-2">Click any button to auto-fill the form with a proven lesson combination. You can edit before generating!</small>
+      </div>
+    </div>
+
+    <div class="card shadow-sm"></div>
       <div class="card-body p-4">
         <form method="POST">
           <div class="row g-3">
@@ -114,6 +142,36 @@
       
       function hidePrompt() {
         document.getElementById('promptSection').style.display = 'none';
+      }
+
+      function loadTemplate(grade, subject, topic, sel) {
+        // Fill in all form fields with the template values
+        document.querySelector("select[name='grade']").value = grade;
+        document.querySelector("select[name='subject']").value = subject;
+        document.querySelector("input[name='topic']").value = topic;
+        document.querySelector("select[name='sel']").value = sel;
+        
+        // Smooth scroll to the form for better UX
+        document.querySelector("form").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Focus on the topic field so they can see it's filled
+        document.querySelector("input[name='topic']").focus();
+        
+        // Optional: Show a brief success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-success alert-dismissible fade show mt-2';
+        successMsg.innerHTML = `
+          <strong>✅ Template Loaded!</strong> ${grade} grade ${subject} lesson on "${topic}" with ${sel} focus.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector("form").insertBefore(successMsg, document.querySelector("form").firstChild);
+        
+        // Auto-remove the success message after 3 seconds
+        setTimeout(() => {
+          if (successMsg.parentNode) {
+            successMsg.remove();
+          }
+        }, 3000);
       }
     </script>
 
