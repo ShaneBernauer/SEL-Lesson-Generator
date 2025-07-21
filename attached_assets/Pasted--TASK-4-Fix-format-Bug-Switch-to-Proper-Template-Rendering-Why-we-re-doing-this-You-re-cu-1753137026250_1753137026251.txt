@@ -1,0 +1,134 @@
+✅ TASK 4: Fix .format() Bug + Switch to Proper Template Rendering
+🔧 Why we're doing this:
+You’re currently inserting HTML directly using Python .format()
+
+That breaks easily when your lesson text includes {} curly braces
+
+We’ll replace that with Flask’s safer render_template_string() method
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Replace the Buggy HTML Formatting Code
+👨‍💻 File: app.py
+🔍 Find where your generated lesson is displayed using .format() — it’ll look something like:
+
+python
+Copy
+Edit
+lesson_html = """
+<div>{}</div>
+""".format(lesson_text)
+🔥 Replace that logic with this:
+
+python
+Copy
+Edit
+from flask import render_template_string
+
+lesson_html_template = """
+<div class="card p-3 mt-4">
+  <h4 class="mb-3">✨ Your SEL-Integrated Lesson</h4>
+  <div style="white-space: pre-wrap;">{{ lesson_text }}</div>
+</div>
+"""
+
+lesson_html = render_template_string(lesson_html_template, lesson_text=lesson_text)
+✅ This safely injects the lesson, even if it includes {} symbols, without crashing your app.
+
+✅ TASK 5: Add Voice Command Route to Generate Lessons by Speech
+🔧 Why we’re doing this:
+Voice adds accessibility and magic for teachers under time pressure
+
+We’ll start with a /voice_command route that listens for 1–2 spoken phrases
+
+Later, we can let it read instructions aloud or guide student check-ins
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Add /voice_command Route
+👨‍💻 File: app.py
+Add this route anywhere under your other @app.route functions:
+
+python
+Copy
+Edit
+@app.route('/voice_command', methods=['POST'])
+def voice_command():
+    try:
+        command = request.json.get("command", "").lower()
+
+        if "fractions and empathy" in command:
+            grade = "4th"
+            subject = "Math"
+            topic = "Fractions"
+            sel_focus = "Empathy"
+        elif "volume and self-regulation" in command:
+            grade = "5th"
+            subject = "Math"
+            topic = "Volume of Prisms"
+            sel_focus = "Self-Regulation"
+        else:
+            return jsonify({"error": "Unknown voice command"}), 400
+
+        # Generate the lesson
+        prompt = f"Create a {grade} grade lesson about {topic} in {subject}, integrating the SEL skill of {sel_focus}. Make it short and usable."
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a creative SEL lesson planner."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        lesson_text = response.choices[0].message.content.strip()
+
+        # Save to DB
+        lesson = Lesson(grade=grade, subject=subject, topic=topic, sel_focus=sel_focus, lesson_text=lesson_text)
+        db.session.add(lesson)
+        db.session.commit()
+
+        return jsonify({"lesson": lesson_text})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+✅ STEP 2: Add a Voice Toggle in HTML (Optional)
+👨‍💻 File: templates/index.html
+
+Add this above your form if you want a simple "Voice Mode" button to show soon:
+
+html
+Copy
+Edit
+<button id="voiceBtn" class="btn btn-outline-secondary mb-3">🎤 Voice Mode</button>
+Then add this JavaScript at the bottom of the page:
+
+html
+Copy
+Edit
+<script>
+const voiceBtn = document.getElementById('voiceBtn');
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+
+voiceBtn.addEventListener('click', () => {
+  recognition.start();
+});
+
+recognition.onresult = function(event) {
+  const command = event.results[0][0].transcript;
+  fetch('/voice_command', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command: command })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.lesson) {
+      const lessonDiv = document.createElement('div');
+      lessonDiv.innerHTML = `<div class='card p-3 mt-4'><strong>Voice-Generated Lesson:</strong><br>${data.lesson}</div>`;
+      document.body.appendChild(lessonDiv);
+    } else {
+      alert("Error: " + (data.error || "Unknown error"));
+    }
+  });
+};
+</script>
