@@ -1,0 +1,86 @@
+✅ TASK 1: Add SQLite Saving for SEL Lessons
+🔧 Why we're doing this:
+Right now, lessons vanish after generation. We want to:
+
+Save every lesson with timestamp, subject, grade, SEL skill
+
+Show these later in a dashboard
+
+Build toward filtering, editing, even logging in
+
+🪜 Step-by-Step Instructions for Replit
+✅ STEP 1: Create the Lesson model
+👨‍💻 File: models.py
+📁 Location: Same place where your app.py lives (usually in the root)
+
+🔄 If you don’t already have models.py, create a new file.
+
+Paste this at the top of models.py:
+
+python
+Copy
+Edit
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+class Lesson(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    grade = db.Column(db.String(20))
+    subject = db.Column(db.String(50))
+    topic = db.Column(db.String(100))
+    sel_focus = db.Column(db.String(50))
+    lesson_text = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+✅ STEP 2: Connect the Database
+👨‍💻 File: app.py
+
+Find where you create the Flask app and add this under it:
+
+python
+Copy
+Edit
+from models import db, Lesson  # ← Add this to import your model
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///lessons.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+✅ STEP 3: Initialize the Database (Run Once)
+👨‍💻 In your Replit Shell tab (bottom or left panel), run this:
+
+bash
+Copy
+Edit
+python
+Then inside the Python shell, run:
+
+python
+Copy
+Edit
+from app import db
+db.create_all()
+exit()
+✅ This will create the lessons.db file in your project with a Lesson table.
+
+✅ STEP 4: Save Each Lesson Automatically
+👨‍💻 File: app.py
+Find the route that generates the lesson (usually @app.route('/', methods=['POST']) or wherever you do openai.ChatCompletion.create)
+
+After the lesson is generated, add this:
+
+python
+Copy
+Edit
+# Save to database
+lesson = Lesson(
+    grade=grade,
+    subject=subject,
+    topic=topic,
+    sel_focus=sel_focus,
+    lesson_text=lesson_text
+)
+db.session.add(lesson)
+db.session.commit()
+Make sure this comes after the variables like grade, subject, etc. are set.
+
