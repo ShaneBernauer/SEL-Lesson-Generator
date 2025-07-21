@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 {% block title %}Lesson Generator | BeaconSEL{% endblock %}
 {% block content %}
@@ -127,19 +126,19 @@
         const subject = document.getElementById('subject').value;
         const topic = document.getElementById('topic').value;
         const sel = document.getElementById('sel').value;
-        
+
         if (!topic.trim()) {
           alert('Please enter an academic topic first.');
           return;
         }
-        
+
         const prompt = `Design a comprehensive integrated lesson plan for ${grade} students on the topic of '${topic}' in ${subject}. Include an SEL focus on ${sel}. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
-        
+
         document.getElementById('promptText').value = prompt;
         document.getElementById('promptSection').style.display = 'block';
         document.getElementById('promptText').focus();
       }
-      
+
       function hidePrompt() {
         document.getElementById('promptSection').style.display = 'none';
       }
@@ -150,13 +149,13 @@
         document.querySelector("select[name='subject']").value = subject;
         document.querySelector("input[name='topic']").value = topic;
         document.querySelector("select[name='sel']").value = sel;
-        
+
         // Smooth scroll to the form for better UX
         document.querySelector("form").scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
+
         // Focus on the topic field so they can see it's filled
         document.querySelector("input[name='topic']").focus();
-        
+
         // Optional: Show a brief success message
         const successMsg = document.createElement('div');
         successMsg.className = 'alert alert-success alert-dismissible fade show mt-2';
@@ -165,7 +164,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         document.querySelector("form").insertBefore(successMsg, document.querySelector("form").firstChild);
-        
+
         // Auto-remove the success message after 3 seconds
         setTimeout(() => {
           if (successMsg.parentNode) {
@@ -215,7 +214,8 @@ recognition.onresult = function(event) {
             <h5 class='mb-0'>🎤 Voice-Generated Lesson Plan</h5>
           </div>
           <div class='card-body'>
-            <div style='white-space: pre-wrap; line-height: 1.8; color: #333;'>${data.lesson}</div>
+            <div id="lesson-output" style='white-space: pre-wrap; line-height: 1.8; color: #333;'>${data.lesson}</div>
+             <button class="btn btn-sm btn-outline-secondary mt-2" onclick="copyLesson()">📋 Copy to Clipboard</button>
           </div>
         </div>
         ${data.download_available ? `
@@ -235,6 +235,18 @@ recognition.onresult = function(event) {
 recognition.onend = function() {
   voiceBtn.textContent = "🎤 Voice Mode";
 };
+
+function copyLesson() {
+  const lessonText = document.getElementById("lesson-output").innerText;
+  navigator.clipboard.writeText(lessonText)
+    .then(() => {
+      alert("✅ Lesson copied to clipboard!");
+    })
+    .catch(err => {
+      alert("❌ Failed to copy lesson.");
+      console.error("Copy error:", err);
+    });
+}
 </script>
 
 {% endblock %}
