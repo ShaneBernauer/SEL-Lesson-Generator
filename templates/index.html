@@ -130,26 +130,37 @@ recognition.lang = 'en-US';
 recognition.interimResults = false;
 
 voiceBtn.addEventListener('click', () => {
+  voiceBtn.textContent = "🎤 Listening...";
   recognition.start();
 });
 
 recognition.onresult = function(event) {
-  const command = event.results[0][0].transcript;
+  const transcript = event.results[0][0].transcript.trim();
+
+  if (!transcript) {
+    alert("⚠️ No speech detected. Please try again.");
+    return;
+  }
+
   fetch('/voice_command', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ command: command })
+    body: JSON.stringify({ command: transcript })
   })
   .then(res => res.json())
   .then(data => {
     if (data.lesson) {
       const lessonDiv = document.createElement('div');
-      lessonDiv.innerHTML = `<div class='card p-3 mt-4'><strong>Voice-Generated Lesson:</strong><br><div style='white-space: pre-wrap;'>${data.lesson}</div></div>`;
+      lessonDiv.innerHTML = `<div class='card p-3 mt-4'><strong>🎤 Voice-Generated Lesson:</strong><br><div style='white-space: pre-wrap;'>${data.lesson}</div></div>`;
       document.body.appendChild(lessonDiv);
     } else {
-      alert("Error: " + (data.error || "Unknown error"));
+      alert("❌ Error: " + (data.error || "Unknown error"));
     }
   });
+};
+
+recognition.onend = function() {
+  voiceBtn.textContent = "🎤 Voice Mode";
 };
 </script>
 

@@ -282,19 +282,24 @@ def dashboard():
 @app.route('/voice_command', methods=['POST'])
 def voice_command():
     try:
-        command = request.json.get("command", "").lower()
+        command = request.json.get("command", "").lower().strip()
+        print("🔊 Voice input received:", command)  # Debug logging
 
-        if "fractions and empathy" in command:
+        if not command:
+            return jsonify({"error": "No voice input detected"}), 400
+
+        if "fractions" in command and "empathy" in command:
             grade = "4th"
             subject = "Math"
             topic = "Fractions"
             sel_focus = "Empathy"
-        elif "volume and self-regulation" in command:
+        elif "volume" in command and "self" in command:
             grade = "5th"
             subject = "Math"
             topic = "Volume of Prisms"
             sel_focus = "Self-Regulation"
         else:
+            print("❗ Unknown voice command:", command)
             return jsonify({"error": "Unknown voice command"}), 400
 
         # Generate the lesson
