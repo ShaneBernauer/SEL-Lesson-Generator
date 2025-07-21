@@ -10,6 +10,8 @@
       <p class="lead text-muted">Create engaging lessons that combine academics with social-emotional learning</p>
     </div>
 
+    <button id="voiceBtn" class="btn btn-outline-secondary mb-3">🎤 Voice Mode</button>
+
     <div class="card shadow-sm">
       <div class="card-body p-4">
         <form method="POST">
@@ -119,5 +121,36 @@
     {action_buttons}
   </div>
 </div>
+
+<script>
+const voiceBtn = document.getElementById('voiceBtn');
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+
+voiceBtn.addEventListener('click', () => {
+  recognition.start();
+});
+
+recognition.onresult = function(event) {
+  const command = event.results[0][0].transcript;
+  fetch('/voice_command', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command: command })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.lesson) {
+      const lessonDiv = document.createElement('div');
+      lessonDiv.innerHTML = `<div class='card p-3 mt-4'><strong>Voice-Generated Lesson:</strong><br><div style='white-space: pre-wrap;'>${data.lesson}</div></div>`;
+      document.body.appendChild(lessonDiv);
+    } else {
+      alert("Error: " + (data.error || "Unknown error"));
+    }
+  });
+};
+</script>
 
 {% endblock %}

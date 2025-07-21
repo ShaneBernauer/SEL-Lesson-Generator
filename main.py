@@ -1,6 +1,6 @@
 
 import os
-from flask import Flask, request, send_file, make_response, render_template
+from flask import Flask, request, send_file, make_response, render_template, render_template_string, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
@@ -192,18 +192,18 @@ def home():
                 db.session.add(lesson_record)
                 db.session.commit()
             
-            output = f"""
+            lesson_html_template = """
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-warning text-dark">
                     <h5 class="mb-0">📋 Your Generated Lesson Plan</h5>
                 </div>
                 <div class="card-body">
-                    <div style="line-height: 1.8; color: #333;">
-                        {lesson.replace(chr(10), '<br>')}
-                    </div>
+                    <div style="line-height: 1.8; color: #333; white-space: pre-wrap;">{{ lesson_text }}</div>
                 </div>
             </div>
             """
+            
+            output = render_template_string(lesson_html_template, lesson_text=lesson)
             
             action_buttons = f"""
             <div class="text-center mt-4 mb-4">
@@ -278,6 +278,45 @@ def download(format_type):
 def dashboard():
     lessons = Lesson.query.order_by(Lesson.created_at.desc()).all()
     return render_template('dashboard.html', lessons=lessons)
+
+@app.route('/voice_command', methods=['POST'])
+def voice_command():
+    try:
+        command = request.json.get("command", "").lower()
+
+        if "fractions and empathy" in command:
+            grade = "4th"
+            subject = "Math"
+            topic = "Fractions"
+            sel_focus = "Empathy"
+        elif "volume and self-regulation" in command:
+            grade = "5th"
+            subject = "Math"
+            topic = "Volume of Prisms"
+            sel_focus = "Self-Regulation"
+        else:
+            return jsonify({"error": "Unknown voice command"}), 400
+
+        # Generate the lesson
+        prompt = f"Create a {grade} grade lesson about {topic} in {subject}, integrating the SEL skill of {sel_focus}. Make it short and usable."
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a creative SEL lesson planner."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        lesson_text = response.choices[0].message.content.strip()
+
+        # Save to DB
+        lesson = Lesson(grade=grade, subject=subject, topic=topic, sel_focus=sel_focus, lesson_text=lesson_text)
+        db.session.add(lesson)
+        db.session.commit()
+
+        return jsonify({"lesson": lesson_text})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=81)
