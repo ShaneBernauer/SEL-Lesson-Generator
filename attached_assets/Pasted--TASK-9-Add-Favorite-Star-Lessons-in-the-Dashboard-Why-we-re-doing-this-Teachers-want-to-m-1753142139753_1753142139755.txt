@@ -1,0 +1,100 @@
+✅ TASK 9: Add “Favorite” / Star Lessons in the Dashboard
+🎯 Why we’re doing this:
+Teachers want to mark their best lessons for reuse
+
+Not every lesson needs saving forever—but a few are gold
+
+This adds personalization + memory—core to making BeaconSEL feel real
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Update the Lesson Model
+👨‍💻 File: models.py
+
+Add a new column to track if a lesson is favorited:
+
+python
+Copy
+Edit
+is_favorite = db.Column(db.Boolean, default=False)
+👆 Add this line inside the Lesson class, near the other fields.
+
+✅ STEP 2: Migrate the Database
+Replit doesn’t support traditional migrations, so just run this:
+
+Open the Shell tab at the bottom
+
+Run this Python shell:
+
+bash
+Copy
+Edit
+python
+Then inside the shell:
+
+python
+Copy
+Edit
+from app import db
+from models import Lesson
+Lesson.__table__.create(db.engine, checkfirst=True)
+exit()
+✅ That adds the new column safely without deleting old data.
+
+✅ STEP 3: Add a Favorite Toggle Button in the Dashboard
+👨‍💻 File: templates/dashboard.html
+
+Inside your lesson card (right after lesson content), add this:
+
+html
+Copy
+Edit
+<form action="/toggle_favorite/{{ lesson.id }}" method="POST" style="display:inline;">
+  {% if lesson.is_favorite %}
+    <button class="btn btn-sm btn-warning">★ Unfavorite</button>
+  {% else %}
+    <button class="btn btn-sm btn-outline-warning">☆ Favorite</button>
+  {% endif %}
+</form>
+✅ This sends a POST request to toggle favorite status.
+
+✅ STEP 4: Add the Toggle Route
+👨‍💻 File: app.py
+
+Add this new route below your other routes:
+
+python
+Copy
+Edit
+@app.route('/toggle_favorite/<int:lesson_id>', methods=['POST'])
+def toggle_favorite(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    lesson.is_favorite = not lesson.is_favorite
+    db.session.commit()
+    return redirect('/dashboard')
+✅ STEP 5: Highlight Favorites in the Dashboard
+Still in dashboard.html, make it visually pop:
+
+html
+Copy
+Edit
+{% if lesson.is_favorite %}
+  <div class="card shadow-sm border-warning border-2">
+{% else %}
+  <div class="card shadow-sm">
+{% endif %}
+✅ ✅ BONUS: Filter Favorites at the Top (Optional)
+At the top of the dashboard, you can show:
+
+html
+Copy
+Edit
+<h5>⭐ You have {{ lessons | selectattr("is_favorite") | list | length }} favorited lessons</h5>
+🧠 Result:
+BeaconSEL now lets teachers:
+
+⭐ Favorite great lessons
+
+🗂 Quickly scan their personal “best-of”
+
+✅ Feel like the tool is remembering for them
+
