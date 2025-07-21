@@ -1,0 +1,116 @@
+✅ TASK 3: Polish the UI to Match Beacon IEP — Now Called BeaconSEL
+🎯 Why we're doing this:
+BeaconSEL works great but still looks like a default Flask app.
+
+You want it to feel just as finished, calm, and professional as Beacon IEP.
+
+This update will improve layout, fonts, colors, spacing, and overall UX.
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Create a Base Layout File
+👨‍💻 File: templates/layout.html
+
+This acts as the shared frame for all BeaconSEL pages.
+
+📌 Paste this into layout.html:
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}BeaconSEL | Lesson Generator{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fdfdfd;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .navbar {
+      background-color: #ffd580;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+    footer {
+      margin-top: 3rem;
+      padding: 1rem 0;
+      background-color: #f4f4f4;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-light px-3 mb-4 shadow-sm">
+    <a class="navbar-brand" href="/">🌞 BeaconSEL</a>
+    <a href="/dashboard" class="btn btn-outline-dark">View Dashboard</a>
+  </nav>
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer>
+    Made with 💛 for teachers | BeaconSEL App
+  </footer>
+
+</body>
+</html>
+✅ STEP 2: Update index.html to Use the Layout
+👨‍💻 File: templates/index.html
+
+At the top of the file, add:
+
+jinja
+Copy
+Edit
+{% extends "layout.html" %}
+{% block title %}Lesson Generator | BeaconSEL{% endblock %}
+{% block content %}
+At the bottom, add:
+
+jinja
+Copy
+Edit
+{% endblock %}
+✅ This wraps your form and UI in the new layout.
+
+✅ STEP 3: Update dashboard.html to Use the Layout
+👨‍💻 File: templates/dashboard.html
+
+Same process:
+
+Top:
+
+jinja
+Copy
+Edit
+{% extends "layout.html" %}
+{% block title %}Dashboard | BeaconSEL{% endblock %}
+{% block content %}
+Bottom:
+
+jinja
+Copy
+Edit
+{% endblock %}
+✅ STEP 4: (Optional) Make Your Forms & Buttons Beautiful
+👨‍💻 In index.html, tweak elements like this:
+
+html
+Copy
+Edit
+<select class="form-select mb-3" name="grade">
+  <!-- options -->
+</select>
+
+<button class="btn btn-warning" type="submit">Generate Lesson</button>
+✅ Use form-control, form-select, btn-warning, and other Bootstrap classes for a clean layout.
+
