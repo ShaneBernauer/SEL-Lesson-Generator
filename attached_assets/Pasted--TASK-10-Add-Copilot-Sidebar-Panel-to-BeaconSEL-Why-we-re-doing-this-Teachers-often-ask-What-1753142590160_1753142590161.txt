@@ -1,0 +1,74 @@
+✅ TASK 10: Add Copilot Sidebar Panel to BeaconSEL
+🔧 Why we're doing this:
+Teachers often ask: “What SEL skill fits here?”
+
+This turns BeaconSEL into more than a generator—it becomes a thinking partner
+
+It's exactly what AI in EdTech should feel like: kind + helpful
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Add the Copilot HTML Panel
+👨‍💻 File: templates/layout.html
+📍 Add this block just before </body> tag at the bottom:
+
+html
+Copy
+Edit
+<!-- Copilot Panel -->
+<div id="copilotPanel" class="position-fixed end-0 top-0 bg-white border-start shadow p-3" style="width: 300px; height: 100vh; display: none; z-index: 1040;">
+  <h5>🧠 BeaconSEL Copilot</h5>
+  <p class="text-muted">Not sure where to start?</p>
+
+  <strong>💡 SEL Tips:</strong>
+  <ul style="padding-left: 1rem;">
+    <li>Math + Frustration → Try <b>Self-Regulation</b></li>
+    <li>Group Work → <b>Relationship Skills</b></li>
+    <li>ELA Character Study → <b>Empathy</b></li>
+    <li>Test Prep or Sub Days → <b>Decision-Making</b></li>
+  </ul>
+
+  <strong>🗣️ Sample Teacher Talk:</strong>
+  <blockquote style="font-size: 0.9rem;">
+    "I notice some of us feel frustrated—let's pause and take a breath together."
+  </blockquote>
+
+  <strong>📋 Prompt Idea:</strong>
+  <p><code>“Create a 5-minute calm-down game linked to math fluency drills.”</code></p>
+
+  <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+</div>
+
+<!-- Copilot Toggle Button -->
+<button onclick="toggleCopilot()" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">🧠 Copilot</button>
+
+<script>
+function toggleCopilot() {
+  const panel = document.getElementById("copilotPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+</script>
+✅ STEP 2: Style It Just a Bit More
+Already using Bootstrap? Great. If you want more polish, you could customize this later with:
+
+Scroll support
+
+Dynamic content (from OpenAI, even)
+
+Context awareness (suggest based on form inputs)
+
+✅ OPTIONAL: Add More Content Later
+Want to pull live Copilot ideas based on subject/SEL combo? You could use a GPT call like:
+
+python
+Copy
+Edit
+copilot_prompt = f"Suggest 3 SEL skills that pair well with a {grade} grade {subject} lesson on {topic}. Also suggest 1 sample student reflection and 1 sentence the teacher might say to guide discussion."
+But for now, the static panel makes BeaconSEL feel smarter, supportive, and ready for anything.
+
+🎉 You Now Have:
+A floating “🧠 Copilot” button teachers can summon any time
+
+SEL pairing tips, sample teacher talk, and prompt examples
+
+A core UX element that makes the product feel emotionally intelligent—not robotic
+
