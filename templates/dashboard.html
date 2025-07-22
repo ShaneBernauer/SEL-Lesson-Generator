@@ -66,6 +66,39 @@
       </div>
     {% endif %}
 
+    <hr class="mt-5">
+    <h4 class="text-primary mb-4">📘 Teaching Journal – Copilot Tips</h4>
+
+    {% if tips %}
+      <div class="row g-4">
+        {% for tip in tips %}
+          <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">{{ tip.grade }} • {{ tip.subject }} • {{ tip.sel_focus }}</h6>
+                {% if tip.topic %}
+                <small class="text-muted">Topic: {{ tip.topic }}</small>
+                {% endif %}
+              </div>
+              <div class="card-body" style="white-space: pre-wrap; font-size: 0.9rem;">
+                {{ tip.content }}
+              </div>
+              <div class="card-footer text-muted">
+                <small>Saved on {{ tip.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-4">
+        <div class="text-muted mb-3">
+          <i class="fs-1">📝</i>
+        </div>
+        <p class="text-muted">No Copilot tips saved yet. Use the Copilot feature on the main page and save helpful suggestions!</p>
+      </div>
+    {% endif %}
+
     <div class="text-center mt-4">
       <a href="/" class="btn btn-outline-secondary">← Back to Generator</a>
     </div>

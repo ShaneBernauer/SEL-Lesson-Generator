@@ -9,7 +9,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
 import io
-from models import db, Lesson
+from models import db, Lesson, CopilotTip
 from pptx import Presentation
 from pptx.util import Inches, Pt
 
@@ -357,7 +357,8 @@ def download(format_type):
 @app.route('/dashboard')
 def dashboard():
     lessons = Lesson.query.order_by(Lesson.created_at.desc()).all()
-    return render_template('dashboard.html', lessons=lessons)
+    copilot_tips = CopilotTip.query.order_by(CopilotTip.created_at.desc()).all()
+    return render_template('dashboard.html', lessons=lessons, tips=copilot_tips)
 
 @app.route('/lesson/<int:lesson_id>')
 def view_lesson(lesson_id):
@@ -414,6 +415,23 @@ def copilot_suggestions():
         result = response.choices[0].message.content.strip()
         return jsonify({"suggestions": result})
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/save_copilot', methods=['POST'])
+def save_copilot():
+    try:
+        data = request.json
+        tip = CopilotTip(
+            grade=data.get('grade', ''),
+            subject=data.get('subject', ''),
+            topic=data.get('topic', ''),
+            sel_focus=data.get('sel', ''),
+            content=data.get('content', '')
+        )
+        db.session.add(tip)
+        db.session.commit()
+        return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

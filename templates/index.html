@@ -247,6 +247,33 @@ function copyLesson() {
       console.error("Copy error:", err);
     });
 }
+
+function toggleCopilot() {
+  const panel = document.getElementById("copilotPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+
+function saveCopilotTip() {
+  const content = document.getElementById("copilotContent").innerText;
+  const grade = document.querySelector("select[name='grade']").value;
+  const subject = document.querySelector("select[name='subject']").value;
+  const topic = document.querySelector("input[name='topic']").value;
+  const sel = document.querySelector("select[name='sel']").value;
+
+  fetch('/save_copilot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ grade, subject, topic, sel, content })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("✅ Copilot tip saved to journal!");
+    } else {
+      alert("❌ Error saving tip.");
+    }
+  });
+}
 </script>
 
 {% endblock %}
