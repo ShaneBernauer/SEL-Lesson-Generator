@@ -1,0 +1,112 @@
+✅ PHASE 1: Standards Tagging + Slide/PPTX Export
+🔶 PART A: Standards Tagging (Auto-Tag Lessons)
+🧠 Goal:
+Automatically tag each generated lesson with:
+
+Academic standards (e.g., Common Core for Math/ELA)
+
+CASEL SEL competencies (Self-Awareness, etc.)
+
+🪜 Implementation Plan (Replit-Ready)
+✅ Step 1: Add fields to your Lesson model
+👨‍💻 File: models.py
+
+python
+Copy
+Edit
+academic_standard = db.Column(db.String(200))
+sel_standard = db.Column(db.String(100))
+Then run:
+
+bash
+Copy
+Edit
+python
+python
+Copy
+Edit
+from app import db
+from models import Lesson
+Lesson.__table__.create(db.engine, checkfirst=True)
+exit()
+✅ Step 2: Tag standards after lesson generation
+👨‍💻 File: main.py
+
+After your lesson is generated, add this:
+
+python
+Copy
+Edit
+# Tag standards using AI
+standard_prompt = (
+    f"Based on the following lesson plan, identify the most likely academic standard "
+    f"(Common Core or NGSS) and CASEL SEL competency it supports:\n\n{lesson}"
+)
+
+standard_response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": standard_prompt}]
+)
+
+# Parse the results
+standard_text = standard_response.choices[0].message.content.strip()
+
+# Optional: Use simple regex to extract values (or just save full explanation)
+lesson_record.academic_standard = standard_text.split('\n')[0]  # crude but works
+lesson_record.sel_standard = standard_text.split('\n')[1] if '\n' in standard_text else ""
+🔶 PART B: Slide/PPTX Export
+🧠 Goal:
+Let teachers download a beautiful 5-slide summary of the lesson as a PowerPoint or Google Slides PDF.
+
+🪜 Implementation Plan (Replit-Friendly)
+✅ Step 1: Add route to generate slides
+👨‍💻 File: main.py
+
+Install required library:
+
+bash
+Copy
+Edit
+pip install python-pptx
+Then add this route:
+
+python
+Copy
+Edit
+from pptx import Presentation
+from pptx.util import Inches, Pt
+
+@app.route('/download/pptx')
+def download_pptx():
+    if not last_lesson:
+        return "No lesson available", 404
+
+    prs = Presentation()
+    bullet_slide_layout = prs.slide_layouts[1]
+
+    sections = last_lesson.split('\n\n')
+    for i, section in enumerate(sections[:5]):
+        slide = prs.slides.add_slide(bullet_slide_layout)
+        title, *body = section.split('\n', 1)
+        slide.shapes.title.text = title.strip()[:50]
+        slide.placeholders[1].text = body[0].strip() if body else ""
+
+    file_path = "lesson_slides.pptx"
+    prs.save(file_path)
+    return send_file(file_path, as_attachment=True, download_name="lesson_plan_slides.pptx")
+✅ Step 2: Add button on UI
+👨‍💻 File: templates/index.html
+
+Add this next to your other download buttons:
+
+html
+Copy
+Edit
+<a href="/download/pptx" class="btn btn-info">🎞️ Download as Slides</a>
+✅ Once complete, BeaconSEL now:
+
+Tags every lesson with real standards
+
+Supports export to slides for presentations or upload to Google Slides
+
+Makes admin-ready lesson plans a one-click task
