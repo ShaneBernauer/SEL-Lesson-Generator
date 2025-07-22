@@ -1,0 +1,133 @@
+✅ PHASE 2: Dynamic, Context-Aware Copilot
+🧠 Goal:
+Make the Copilot sidebar actually think based on the lesson inputs.
+
+“I chose 4th grade math on fractions + self-regulation…”
+Copilot responds:
+
+🧩 Tips for managing focus during fractions
+
+💬 Sample reflection question
+
+🎯 Teacher talk like: “When math feels tricky, what can we do to reset?”
+
+🪜 Step-by-Step Replit Instructions
+✅ STEP 1: Create a Copilot Route
+👨‍💻 File: main.py
+Add this route near the top with your other Flask routes:
+
+python
+Copy
+Edit
+@app.route('/copilot_suggestions', methods=['POST'])
+def copilot_suggestions():
+    try:
+        data = request.json
+        grade = data.get('grade', '')
+        subject = data.get('subject', '')
+        topic = data.get('topic', '')
+        sel = data.get('sel', '')
+
+        prompt = (
+            f"You are a teacher support assistant. Suggest the following for a {grade} grade "
+            f"{subject} lesson on '{topic}' with an SEL focus on {sel}:\n"
+            f"- 1 sentence describing why this SEL focus fits this topic\n"
+            f"- 2 reflection questions for students\n"
+            f"- 1 line of sample teacher talk\n"
+            f- 1 game or activity idea to reinforce the SEL skill\n\n"
+            f"Format as:\nSEL Fit:\n...\n\nReflections:\n...\n...\n\nTeacher Talk:\n...\n\nActivity Idea:\n..."
+        )
+
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        result = response.choices[0].message.content.strip()
+        return jsonify({"suggestions": result})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+✅ STEP 2: Add JavaScript to Trigger Copilot Suggestions
+👨‍💻 File: templates/index.html
+Add this script to your <script> block (or create one near the bottom):
+
+html
+Copy
+Edit
+<script>
+function fetchCopilotSuggestions() {
+  const grade = document.querySelector("select[name='grade']").value;
+  const subject = document.querySelector("select[name='subject']").value;
+  const topic = document.querySelector("input[name='topic']").value;
+  const sel = document.querySelector("select[name='sel']").value;
+
+  const panel = document.getElementById("copilotPanel");
+  panel.innerHTML = "<p class='text-muted'>Thinking... ✨</p>";
+
+  fetch('/copilot_suggestions', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ grade, subject, topic, sel })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.suggestions) {
+      panel.innerHTML = `
+        <pre style="white-space: pre-wrap; font-size: 0.9rem;">${data.suggestions}</pre>
+        <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+      `;
+    } else {
+      panel.innerHTML = "<p>Error loading suggestions</p>";
+    }
+  });
+}
+</script>
+✅ STEP 3: Update the Copilot Toggle Button
+Still in index.html, replace this:
+
+html
+Copy
+Edit
+<button onclick="toggleCopilot()" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">🧠 Copilot</button>
+With this:
+
+html
+Copy
+Edit
+<button onclick="toggleCopilot(); fetchCopilotSuggestions();" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">🧠 Copilot</button>
+✅ STEP 4: Make the Copilot Panel Container
+At the bottom of the body, just before </body>, add or update:
+
+html
+Copy
+Edit
+<!-- Copilot Panel (starts blank, filled dynamically) -->
+<div id="copilotPanel" class="position-fixed end-0 top-0 bg-white border-start shadow p-3" 
+     style="width: 320px; height: 100vh; display: none; z-index: 1040; overflow-y: auto;">
+</div>
+And make sure your toggleCopilot() still exists:
+
+html
+Copy
+Edit
+<script>
+function toggleCopilot() {
+  const panel = document.getElementById("copilotPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+</script>
+✅ RESULT:
+When the teacher clicks the 🧠 Copilot button:
+
+The app sends current lesson settings to GPT
+
+Returns personalized:
+
+SEL fit explanation
+
+Student reflection questions
+
+Teacher script line
+
+Activity idea
