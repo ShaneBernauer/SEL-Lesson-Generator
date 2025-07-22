@@ -12,3 +12,5 @@ class Lesson(db.Model):
     lesson_text = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_favorite = db.Column(db.Boolean, default=False)
+    academic_standard = db.Column(db.String(200))
+    sel_standard = db.Column(db.String(100))

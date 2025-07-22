@@ -18,6 +18,14 @@
               <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.grade }} – {{ lesson.subject }}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">{{ lesson.sel_focus }} | {{ lesson.topic }}</h6>
+                {% if lesson.academic_standard %}
+                <div class="mb-2">
+                  <span class="badge bg-primary me-1">📚 {{ lesson.academic_standard }}</span>
+                  {% if lesson.sel_standard %}
+                  <span class="badge bg-warning">❤️ {{ lesson.sel_standard }}</span>
+                  {% endif %}
+                </div>
+                {% endif %}
                 <p class="card-text">{{ lesson.lesson_text[:200] }}...</p>
                 <p class="text-muted mb-3"><small>{{ lesson.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
                 <a href="/lesson/{{ lesson.id }}" class="btn btn-warning btn-sm">📖 View Full Lesson</a>
@@ -30,6 +38,14 @@
               <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.grade }} – {{ lesson.subject }}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">{{ lesson.sel_focus }} | {{ lesson.topic }}</h6>
+                {% if lesson.academic_standard %}
+                <div class="mb-2">
+                  <span class="badge bg-primary me-1">📚 {{ lesson.academic_standard }}</span>
+                  {% if lesson.sel_standard %}
+                  <span class="badge bg-warning">❤️ {{ lesson.sel_standard }}</span>
+                  {% endif %}
+                </div>
+                {% endif %}
                 <p class="card-text">{{ lesson.lesson_text[:200] }}...</p>
                 <p class="text-muted mb-3"><small>{{ lesson.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
                 <a href="/lesson/{{ lesson.id }}" class="btn btn-warning btn-sm">📖 View Full Lesson</a>
