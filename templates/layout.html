@@ -50,37 +50,87 @@
     Made with 💛 for teachers | BeaconSEL App
   </footer>
 
-  <!-- Copilot Panel -->
-  <div id="copilotPanel" class="position-fixed end-0 top-0 bg-white border-start shadow p-3" style="width: 300px; height: 100vh; display: none; z-index: 1040;">
-    <h5>🧠 BeaconSEL Copilot</h5>
-    <p class="text-muted">Not sure where to start?</p>
-
-    <strong>💡 SEL Tips:</strong>
-    <ul style="padding-left: 1rem;">
-      <li>Math + Frustration → Try <b>Self-Regulation</b></li>
-      <li>Group Work → <b>Relationship Skills</b></li>
-      <li>ELA Character Study → <b>Empathy</b></li>
-      <li>Test Prep or Sub Days → <b>Decision-Making</b></li>
-    </ul>
-
-    <strong>🗣️ Sample Teacher Talk:</strong>
-    <blockquote style="font-size: 0.9rem;">
-      "I notice some of us feel frustrated—let's pause and take a breath together."
-    </blockquote>
-
-    <strong>📋 Prompt Idea:</strong>
-    <p><code>"Create a 5-minute calm-down game linked to math fluency drills."</code></p>
-
-    <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+  <!-- Copilot Panel (starts blank, filled dynamically) -->
+  <div id="copilotPanel" class="position-fixed end-0 top-0 bg-white border-start shadow p-3" 
+       style="width: 320px; height: 100vh; display: none; z-index: 1040; overflow-y: auto;">
   </div>
 
   <!-- Copilot Toggle Button -->
-  <button onclick="toggleCopilot()" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">🧠 Copilot</button>
+  <button onclick="toggleCopilot(); fetchCopilotSuggestions();" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">🧠 Copilot</button>
 
   <script>
   function toggleCopilot() {
     const panel = document.getElementById("copilotPanel");
     panel.style.display = panel.style.display === "none" ? "block" : "none";
+  }
+
+  function fetchCopilotSuggestions() {
+    const gradeSelect = document.querySelector("select[name='grade']");
+    const subjectSelect = document.querySelector("select[name='subject']");
+    const topicInput = document.querySelector("input[name='topic']");
+    const selSelect = document.querySelector("select[name='sel']");
+
+    // Check if we're on the main page with the form
+    if (!gradeSelect || !subjectSelect || !topicInput || !selSelect) {
+      document.getElementById("copilotPanel").innerHTML = `
+        <h5>🧠 BeaconSEL Copilot</h5>
+        <p class="text-muted">Go to the lesson generator to get personalized suggestions!</p>
+        <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+      `;
+      return;
+    }
+
+    const grade = gradeSelect.value;
+    const subject = subjectSelect.value;
+    const topic = topicInput.value;
+    const sel = selSelect.value;
+
+    const panel = document.getElementById("copilotPanel");
+    panel.innerHTML = `
+      <h5>🧠 BeaconSEL Copilot</h5>
+      <p class='text-muted'>Thinking about your lesson... ✨</p>
+    `;
+
+    // Only fetch suggestions if we have the minimum required fields
+    if (!grade || !subject || !sel) {
+      panel.innerHTML = `
+        <h5>🧠 BeaconSEL Copilot</h5>
+        <p class="text-muted">Fill out the lesson form to get personalized suggestions!</p>
+        <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+      `;
+      return;
+    }
+
+    fetch('/copilot_suggestions', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ grade, subject, topic: topic || 'General Skills', sel })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.suggestions) {
+        panel.innerHTML = `
+          <h5>🧠 BeaconSEL Copilot</h5>
+          <div style="font-size: 0.9rem; line-height: 1.5;">
+            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${data.suggestions}</pre>
+          </div>
+          <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+        `;
+      } else {
+        panel.innerHTML = `
+          <h5>🧠 BeaconSEL Copilot</h5>
+          <p class="text-danger">Error loading suggestions. Please try again.</p>
+          <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+        `;
+      }
+    })
+    .catch(error => {
+      panel.innerHTML = `
+        <h5>🧠 BeaconSEL Copilot</h5>
+        <p class="text-danger">Connection error. Please check your internet and try again.</p>
+        <button onclick="toggleCopilot()" class="btn btn-sm btn-outline-danger mt-3">Close</button>
+      `;
+    });
   }
   </script>
 

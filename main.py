@@ -385,6 +385,38 @@ def toggle_favorite(lesson_id):
     db.session.commit()
     return redirect('/dashboard')
 
+@app.route('/copilot_suggestions', methods=['POST'])
+def copilot_suggestions():
+    try:
+        data = request.json
+        grade = data.get('grade', '')
+        subject = data.get('subject', '')
+        topic = data.get('topic', '')
+        sel = data.get('sel', '')
+
+        prompt = (
+            f"You are a teacher support assistant. Suggest the following for a {grade} grade "
+            f"{subject} lesson on '{topic}' with an SEL focus on {sel}:\n"
+            f"- 1 sentence describing why this SEL focus fits this topic\n"
+            f"- 2 reflection questions for students\n"
+            f"- 1 line of sample teacher talk\n"
+            f"- 1 game or activity idea to reinforce the SEL skill\n\n"
+            f"Format as:\nSEL Fit:\n...\n\nReflections:\n...\n...\n\nTeacher Talk:\n...\n\nActivity Idea:\n..."
+        )
+
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=400,
+            temperature=0.7
+        )
+
+        result = response.choices[0].message.content.strip()
+        return jsonify({"suggestions": result})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/voice_command', methods=['POST'])
 def voice_command():
     try:
