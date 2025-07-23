@@ -1,4 +1,3 @@
-
 import os
 from flask import Flask, request, send_file, make_response, render_template, render_template_string, jsonify, redirect
 from openai import OpenAI
@@ -35,7 +34,7 @@ def generate_lesson(prompt):
 def add_to_history(grade, subject, topic, sel, sped=""):
     """Add a new prompt to history, keeping only the last 10"""
     global prompt_history
-    
+
     prompt_entry = {
         'grade': grade,
         'subject': subject,
@@ -44,13 +43,13 @@ def add_to_history(grade, subject, topic, sel, sped=""):
         'sped': sped,
         'timestamp': f"{grade} - {subject} - {topic} - {sel}" + (f" - {sped}" if sped else "")
     }
-    
+
     # Remove if already exists to avoid duplicates
     prompt_history = [p for p in prompt_history if not (
         p['grade'] == grade and p['subject'] == subject and 
         p['topic'] == topic and p['sel'] == sel and p.get('sped', '') == sped
     )]
-    
+
     # Add to beginning and keep only last 10
     prompt_history.insert(0, prompt_entry)
     prompt_history = prompt_history[:10]
@@ -59,10 +58,10 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
     """Create a nicely formatted PDF of the lesson"""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=1*inch)
-    
+
     # Get styles and create custom ones
     styles = getSampleStyleSheet()
-    
+
     # Custom styles with orange/blue theme
     title_style = ParagraphStyle(
         'CustomTitle',
@@ -72,7 +71,7 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
         spaceAfter=20,
         alignment=1  # Center alignment
     )
-    
+
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
@@ -81,7 +80,7 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
         spaceBefore=15,
         spaceAfter=10
     )
-    
+
     body_style = ParagraphStyle(
         'CustomBody',
         parent=styles['Normal'],
@@ -90,14 +89,14 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
         spaceAfter=10,
         leading=16
     )
-    
+
     # Build PDF content
     story = []
-    
+
     # Add title
     story.append(Paragraph("🧠 SEL Lesson Plan", title_style))
     story.append(Spacer(1, 20))
-    
+
     # Process lesson content
     lines = lesson_content.split('\n')
     for line in lines:
@@ -105,13 +104,13 @@ def create_pdf(lesson_content, filename="lesson.pdf"):
         if not line:
             story.append(Spacer(1, 10))
             continue
-            
+
         # Check if it's a heading (contains colons or is all caps)
         if ':' in line and len(line) < 100:
             story.append(Paragraph(line, heading_style))
         else:
             story.append(Paragraph(line, body_style))
-    
+
     # Build PDF
     doc.build(story)
     buffer.seek(0)
@@ -136,7 +135,7 @@ def home():
             topic = request.form["topic"]
             sel = request.form["sel"]
             sped = request.form.get("sped", "")
-            
+
             # Add to history
             add_to_history(grade, subject, topic, sel, sped)
 
@@ -144,21 +143,22 @@ def home():
                 f"Design a comprehensive integrated lesson plan for {grade} students "
                 f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}."
             )
-            
+
             if sped:
                 last_prompt += (
                     f" This lesson should include specific accommodations and modifications "
                     f"for students with {sped}. Consider sensory needs, communication strategies, "
-                    f"and individualized support approaches."
+                    f"and individualized support approaches. Include all Louisiana State requirements "
+                    f"in your output decision to meet compliance in IDEA and CASEL."
                 )
-            
+
             last_prompt += (
                 f" The lesson should include: a creative hook, clear learning objectives, "
                 f"direct instruction, an engaging activity or game, guided practice, "
                 f"reflection questions that connect to the SEL focus, and an exit slip. "
                 f"Make it detailed and practical for teachers to implement."
             )
-            
+
         elif action == "use_history":
             # Handle clicking on a history item
             grade = request.form["grade"]
@@ -166,19 +166,20 @@ def home():
             topic = request.form["topic"]
             sel = request.form["sel"]
             sped = request.form.get("sped", "")
-            
+
             last_prompt = (
                 f"Design a comprehensive integrated lesson plan for {grade} students "
                 f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}."
             )
-            
+
             if sped:
                 last_prompt += (
                     f" This lesson should include specific accommodations and modifications "
                     f"for students with {sped}. Consider sensory needs, communication strategies, "
-                    f"and individualized support approaches."
+                    f"and individualized support approaches. Include all Louisiana State requirements "
+                    f"in your output decision to meet compliance in IDEA and CASEL."
                 )
-            
+
             last_prompt += (
                 f" The lesson should include: a creative hook, clear learning objectives, "
                 f"direct instruction, an engaging activity or game, guided practice, "
@@ -199,14 +200,14 @@ def home():
         if last_prompt:
             lesson = generate_lesson(last_prompt)
             last_lesson = lesson
-            
+
             # Save to database if we have the required fields
             if action in ["generate", "use_history"]:
                 grade = request.form.get("grade", "")
                 subject = request.form.get("subject", "")
                 topic = request.form.get("topic", "")
                 sel = request.form.get("sel", "")
-                
+
                 # Tag standards using AI
                 standard_prompt = (
                     f"Based on this {grade} grade {subject} lesson plan about {topic}, "
@@ -223,24 +224,24 @@ def home():
                         max_tokens=200,
                         temperature=0.3
                     )
-                    
+
                     standard_text = standard_response.choices[0].message.content.strip()
                     lines = standard_text.split('\n')
-                    
+
                     academic_standard = ""
                     sel_standard = ""
-                    
+
                     for line in lines:
                         if line.startswith("Academic:"):
                             academic_standard = line.replace("Academic:", "").strip()
                         elif line.startswith("SEL:"):
                             sel_standard = line.replace("SEL:", "").strip()
-                
+
                 except Exception as e:
                     print(f"Standards tagging error: {e}")
                     academic_standard = f"Grade {grade} {subject}"
                     sel_standard = sel
-                
+
                 lesson_record = Lesson(
                     grade=grade,
                     subject=subject,
@@ -253,7 +254,7 @@ def home():
                 )
                 db.session.add(lesson_record)
                 db.session.commit()
-            
+
             lesson_html_template = """
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-warning text-dark">
@@ -264,9 +265,9 @@ def home():
                 </div>
             </div>
             """
-            
+
             output = render_template_string(lesson_html_template, lesson_text=lesson)
-            
+
             action_buttons = f"""
             <div class="text-center mt-4 mb-4">
                 <form method="POST" style="display: inline;">
@@ -278,7 +279,7 @@ def home():
                 <a href="/download/pptx" class="btn btn-info">🎞️ Download as Slides</a>
             </div>
             """
-            
+
             # Save text version
             with open("lesson.txt", "w", encoding="utf-8") as f:
                 f.write(lesson)
@@ -322,27 +323,27 @@ def home():
 @app.route("/download/<format_type>", methods=["GET"])
 def download(format_type):
     global last_lesson
-    
+
     if format_type == "txt":
         return send_file("lesson.txt", as_attachment=True, download_name="lesson_plan.txt")
     elif format_type == "pdf":
         if not last_lesson:
             return "No lesson available for download", 404
-            
+
         pdf_buffer = create_pdf(last_lesson)
-        
+
         response = make_response(pdf_buffer.getvalue())
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = 'attachment; filename=lesson_plan.pdf'
-        
+
         return response
     elif format_type == "pptx":
         if not last_lesson:
             return "No lesson available for download", 404
-            
+
         prs = Presentation()
         bullet_slide_layout = prs.slide_layouts[1]
-        
+
         # Title slide
         title_slide_layout = prs.slide_layouts[0]
         slide = prs.slides.add_slide(title_slide_layout)
@@ -350,30 +351,30 @@ def download(format_type):
         subtitle = slide.placeholders[1]
         title.text = "SEL Lesson Plan"
         subtitle.text = "Generated by BeaconSEL"
-        
+
         # Split lesson into sections
         sections = last_lesson.split('\n\n')
-        
+
         for i, section in enumerate(sections[:4]):  # Limit to 4 content slides
             slide = prs.slides.add_slide(bullet_slide_layout)
             lines = section.split('\n')
-            
+
             # Use first line as title
             if lines:
                 slide.shapes.title.text = lines[0].strip()[:50]
-                
+
                 # Add remaining lines as bullet points
                 if len(lines) > 1:
                     body_shape = slide.placeholders[1]
                     tf = body_shape.text_frame
-                    
+
                     for line in lines[1:6]:  # Limit bullet points
                         line = line.strip()
                         if line:
                             p = tf.add_paragraph()
                             p.text = line[:80]  # Limit length
                             p.level = 0
-        
+
         file_path = "lesson_slides.pptx"
         prs.save(file_path)
         return send_file(file_path, as_attachment=True, download_name="lesson_plan_slides.pptx")
@@ -398,11 +399,11 @@ def set_lesson_for_download():
     lesson = Lesson.query.get_or_404(lesson_id)
     last_lesson = lesson.lesson_text
     last_prompt = f"Lesson for {lesson.grade} grade {lesson.subject} on {lesson.topic} with SEL focus on {lesson.sel_focus}"
-    
+
     # Save text version for download
     with open("lesson.txt", "w", encoding="utf-8") as f:
         f.write(lesson.lesson_text)
-    
+
     return jsonify({"success": True})
 
 @app.route('/toggle_favorite/<int:lesson_id>', methods=['POST'])
@@ -478,7 +479,7 @@ def voice_command():
             grade = "5th"
         elif "grade 3" in command or "third grade" in command or "3rd grade" in command:
             grade = "3rd"
-        
+
         # Extract subject
         subject = "Math"  # Default to Math for now
         if "mathematics" in command or "math" in command:
@@ -487,7 +488,7 @@ def voice_command():
             subject = "Science"
         elif "english" in command or "ela" in command:
             subject = "ELA"
-        
+
         # Extract SEL focus
         sel_focus = None
         if "self-awareness" in command or "self awareness" in command:
@@ -500,7 +501,7 @@ def voice_command():
             sel_focus = "Social Awareness"
         elif "relationship" in command:
             sel_focus = "Relationship Skills"
-        
+
         # Extract topic (basic patterns)
         topic = "General Math Skills"  # Default
         if "fractions" in command:
@@ -511,7 +512,7 @@ def voice_command():
             topic = "Addition"
         elif "multiplication" in command:
             topic = "Multiplication"
-        
+
         # Validate we have minimum required info
         if not grade:
             return jsonify({"error": "Please specify a grade level (e.g., 'grade 4', 'fourth grade')"}), 400
@@ -538,7 +539,7 @@ def voice_command():
         global last_lesson, last_prompt
         last_lesson = lesson_text
         last_prompt = prompt
-        
+
         # Save text version for download
         with open("lesson.txt", "w", encoding="utf-8") as f:
             f.write(lesson_text)
