@@ -1,31 +1,50 @@
-Lesson Title: "Math Mates: Understanding Fractions and Social Awareness"
+Title: Understanding Decimal Points with a Focus on Self-Management
 
-Objective: To enhance 4th-grade students' general math skills by practicing fractions while cultivating Social and Emotional Learning (SEL) skills, particularly Social Awareness.
+Grade Level: 4th Grade
 
-Materials: Cardstock papers with fractions, Blank papers, Pencils, Colors
+Subject: Math
 
-Procedures:
+SEL Focus: Self-Management
 
-1. Gather students in a circle for the lesson introduction. Explain the day's objective of understanding fractions while learning to be more socially aware.
+Louisiana Standards: 
+- MA.4.NSO.1.4: Demonstrate an understanding of decimal notation for fractions, and compare decimal fractions.
+- MA.4.NSO.1.5: Use decimal notation for fractions with denominators 10 or 100.
+- SEL.4.SM.1: Set a respectful tone for interactions with others.
+- SEL.4.SM.2: Identify and apply the steps for setting and achieving short-term goals.
 
-2. Provide an explanation of fractions and give examples. Ensure to gauge understanding and answer arising questions.
+Objectives:
+- Students will understand the concept of decimal points and how they connect to fractions.
+- Students will be able to compare different decimal fractions.
+- Students will learn how to manage their learning process, set goals, and evaluate their progress towards these goals.
 
-3. Now, break students into groups of four. Each group receives a set of cardstock papers with different fractions.
+Materials:
+- Decimal cards
+- Whiteboard and markers
+- Worksheets for guided practice
+- Exit slips
 
-4. Students within each group will be asked to work together to arrange their fractions, smallest to largest. Emphasize that it's not a competition but a learning process, they need to be patient and listen to each other's ideas.
+Hook:
+Start the lesson by splitting the class into small groups and distributing decimal cards to each group. Ask them to arrange the decimals from smallest to largest. This hands-on activity will stimulate their interest and curiosity about decimals. 
 
-5. During the course of the activity, walk around to each group. Observe and guide as needed but allow students to work independently.
+Direct Instruction:
+- Explain the concept of decimal points, how they represent parts of a whole, and how they connect to fractions.
+- Demonstrate how to read and write decimals.
+- Show examples of comparing decimals and explain how the value of a decimal changes depending on its position.
+- Discuss the SEL focus: self-management. Explain that it involves setting personal goals, tracking progress, and adjusting actions if necessary to achieve those goals. Make the link to learning about decimals: setting a goal to understand and use decimals, practicing, and checking their understanding.
 
-6. Once complete, each group presents their arranged fractions, explaining how they arrived at their results. This fosters their abilities to articulate their thoughts clearly, a useful social skill.
+Activity:
+Play a game of "Decimal War". Similar to the card game "War", students compare their decimal cards and the highest value wins. This game will help students practice comparing decimals while also encouraging them to manage their game strategy.
 
-7. Facilitate a discussion on how the process went. Ask students to reflect on the listening, cooperation, understanding, and perspective taking skills they utilized during the activity.
+Guided Practice:
+Provide worksheets that include problems on reading, writing, and comparing decimals. Walk around the classroom to monitor progress, provide guidance, and answer any questions. Encourage students to check their work and assess their understanding.
 
-8. To wrap up the lesson, have students individually draw a picture about how they used and observed social awareness during the group activities. They can share their drawings and reflections if they wish.
+Reflection Questions:
+- How did you feel when you were trying to understand decimals? What strategies did you use to help?
+- What goal did you set for yourself today in understanding decimals? How close are you to reaching it?
+- How did you manage your time and focus during the activities and practice?
+- How can you apply self-management in other areas of your studies and life?
 
-Assessment: Assess the students based on both their understanding of the math content (arranging fractions correctly) and their ability to demonstrate social awareness skills in collaborating with their peers.
+Exit Slip:
+Ask students to complete an exit slip before leaving. They should write one thing they learned about decimals, one question they still have, and rate their understanding on a scale of 1-5. This will provide you with important feedback for planning future lessons and identifying any students who may need additional support.
 
-SEL Skills Highlighted: This lesson helps students understand and appreciate others' perspectives, reinforcing the importance of working as a team, respectful communication, and social awareness in both academic and social settings. 
-
-Homework: For homework, students can practice their fractions through worksheets and reflect on how they can apply their social awareness skills in other areas of their lives – both in and out of school. 
-
-Hey, presto! You have a math lesson integrated with social awareness.
+Remember, learning about decimals and self-management skills are both important for students' academic and personal growth. Through this lesson, students will not only gain math knowledge but also learn valuable skills that will benefit them in all areas of life.
