@@ -16,23 +16,29 @@
       <div class="card-body">
         <h5 class="mb-3">🧪 Quick Lesson Starters</h5>
         <div class="d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('2nd', 'ELA', 'Main Idea', 'Empathy')">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('2nd', 'ELA', 'Main Idea', 'Empathy', '')">
             📖 ELA + Empathy (2nd)
           </button>
-          <button type="button" class="btn btn-outline-success btn-sm" onclick="loadTemplate('4th', 'Math', 'Fractions', 'Self-Regulation')">
+          <button type="button" class="btn btn-outline-success btn-sm" onclick="loadTemplate('4th', 'Math', 'Fractions', 'Self-Regulation', '')">
             🔢 Math + Self-Reg (4th)
           </button>
-          <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadTemplate('5th', 'Science', 'Ecosystems', 'Relationship Skills')">
+          <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadTemplate('5th', 'Science', 'Ecosystems', 'Relationship Skills', '')">
             🔬 Science + Relationships (5th)
           </button>
-          <button type="button" class="btn btn-outline-dark btn-sm" onclick="loadTemplate('3rd', 'Social Studies', 'Community Rules', 'Responsible Decision-Making')">
+          <button type="button" class="btn btn-outline-dark btn-sm" onclick="loadTemplate('3rd', 'Social Studies', 'Community Rules', 'Responsible Decision-Making', '')">
             🏛️ History + Decisions (3rd)
           </button>
-          <button type="button" class="btn btn-outline-info btn-sm" onclick="loadTemplate('1st', 'Math', 'Counting', 'Self-Awareness')">
+          <button type="button" class="btn btn-outline-info btn-sm" onclick="loadTemplate('1st', 'Math', 'Counting', 'Self-Awareness', '')">
             🧮 Math + Self-Aware (1st)
           </button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadTemplate('6th', 'Science', 'Weather Patterns', 'Social Awareness')">
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadTemplate('6th', 'Science', 'Weather Patterns', 'Social Awareness', '')">
             🌦️ Science + Social (6th)
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="loadTemplate('4th', 'Math', 'Addition', 'Self-Regulation', 'Autism Spectrum Disorder')">
+            🧩 Math + ASD Support (4th)
+          </button>
+          <button type="button" class="btn btn-outline-purple btn-sm" onclick="loadTemplate('3rd', 'ELA', 'Reading Comprehension', 'Self-Awareness', 'Learning Disability')">
+            📚 ELA + Learning Support (3rd)
           </button>
         </div>
         <small class="text-muted d-block mt-2">Click any button to auto-fill the form with a proven lesson combination. You can edit before generating!</small>
@@ -74,7 +80,7 @@
               <input type="text" name="topic" id="topic" class="form-control" placeholder="e.g., fractions, photosynthesis, American Revolution" required>
             </div>
 
-            <div class="col-12">
+            <div class="col-md-6">
               <label for="sel" class="form-label fw-semibold">❤️ SEL Focus</label>
               <select name="sel" id="sel" class="form-select">
                 <option value="Self-Awareness">Self-Awareness</option>
@@ -82,6 +88,24 @@
                 <option value="Social Awareness">Social Awareness</option>
                 <option value="Relationship Skills">Relationship Skills</option>
                 <option value="Responsible Decision-Making">Responsible Decision-Making</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="sped" class="form-label fw-semibold">🧩 SPED Focus (Optional)</label>
+              <select name="sped" id="sped" class="form-select">
+                <option value="">No special accommodations</option>
+                <option value="Autism Spectrum Disorder">Autism Spectrum Disorder</option>
+                <option value="Down Syndrome">Down Syndrome</option>
+                <option value="Speech/Language Disability">Speech/Language Disability</option>
+                <option value="Learning Disability">Learning Disability</option>
+                <option value="ADHD">ADHD</option>
+                <option value="Intellectual Disability">Intellectual Disability</option>
+                <option value="Visual Impairment">Visual Impairment</option>
+                <option value="Hearing Impairment">Hearing Impairment</option>
+                <option value="Physical Disability">Physical Disability</option>
+                <option value="Emotional/Behavioral Disorder">Emotional/Behavioral Disorder</option>
+                <option value="Multiple Disabilities">Multiple Disabilities</option>
               </select>
             </div>
           </div>
@@ -126,13 +150,20 @@
         const subject = document.getElementById('subject').value;
         const topic = document.getElementById('topic').value;
         const sel = document.getElementById('sel').value;
+        const sped = document.getElementById('sped').value;
 
         if (!topic.trim()) {
           alert('Please enter an academic topic first.');
           return;
         }
 
-        const prompt = `Design a comprehensive integrated lesson plan for ${grade} students on the topic of '${topic}' in ${subject}. Include an SEL focus on ${sel}. The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
+        let prompt = `Design a comprehensive integrated lesson plan for ${grade} students on the topic of '${topic}' in ${subject}. Include an SEL focus on ${sel}.`;
+        
+        if (sped) {
+          prompt += ` This lesson should include specific accommodations and modifications for students with ${sped}. Consider sensory needs, communication strategies, and individualized support approaches.`;
+        }
+        
+        prompt += ` The lesson should include: a creative hook, clear learning objectives, direct instruction, an engaging activity or game, guided practice, reflection questions that connect to the SEL focus, and an exit slip. Make it detailed and practical for teachers to implement.`;
 
         document.getElementById('promptText').value = prompt;
         document.getElementById('promptSection').style.display = 'block';
@@ -143,12 +174,13 @@
         document.getElementById('promptSection').style.display = 'none';
       }
 
-      function loadTemplate(grade, subject, topic, sel) {
+      function loadTemplate(grade, subject, topic, sel, sped = '') {
         // Fill in all form fields with the template values
         document.querySelector("select[name='grade']").value = grade;
         document.querySelector("select[name='subject']").value = subject;
         document.querySelector("input[name='topic']").value = topic;
         document.querySelector("select[name='sel']").value = sel;
+        document.querySelector("select[name='sped']").value = sped;
 
         // Smooth scroll to the form for better UX
         document.querySelector("form").scrollIntoView({ behavior: 'smooth', block: 'start' });

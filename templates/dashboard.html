@@ -17,7 +17,12 @@
             <div class="card h-100 shadow-sm hover-card border-warning border-2">
               <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.grade }} – {{ lesson.subject }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">{{ lesson.sel_focus }} | {{ lesson.topic }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  {{ lesson.sel_focus }} | {{ lesson.topic }}
+                  {% if lesson.sped_focus %}
+                  <br><span class="badge bg-info">🧩 {{ lesson.sped_focus }}</span>
+                  {% endif %}
+                </h6>
                 {% if lesson.academic_standard %}
                 <div class="mb-2">
                   <span class="badge bg-primary me-1">📚 {{ lesson.academic_standard }}</span>
@@ -37,7 +42,12 @@
             <div class="card h-100 shadow-sm hover-card">
               <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.grade }} – {{ lesson.subject }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">{{ lesson.sel_focus }} | {{ lesson.topic }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  {{ lesson.sel_focus }} | {{ lesson.topic }}
+                  {% if lesson.sped_focus %}
+                  <br><span class="badge bg-info">🧩 {{ lesson.sped_focus }}</span>
+                  {% endif %}
+                </h6>
                 {% if lesson.academic_standard %}
                 <div class="mb-2">
                   <span class="badge bg-primary me-1">📚 {{ lesson.academic_standard }}</span>

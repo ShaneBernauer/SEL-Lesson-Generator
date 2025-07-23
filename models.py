@@ -14,6 +14,7 @@ class Lesson(db.Model):
     is_favorite = db.Column(db.Boolean, default=False)
     academic_standard = db.Column(db.String(200))
     sel_standard = db.Column(db.String(100))
+    sped_focus = db.Column(db.String(100))
 
 class CopilotTip(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -32,7 +32,7 @@ def generate_lesson(prompt):
     )
     return response.choices[0].message.content.strip()
 
-def add_to_history(grade, subject, topic, sel):
+def add_to_history(grade, subject, topic, sel, sped=""):
     """Add a new prompt to history, keeping only the last 10"""
     global prompt_history
     
@@ -41,13 +41,14 @@ def add_to_history(grade, subject, topic, sel):
         'subject': subject,
         'topic': topic,
         'sel': sel,
-        'timestamp': f"{grade} - {subject} - {topic} - {sel}"
+        'sped': sped,
+        'timestamp': f"{grade} - {subject} - {topic} - {sel}" + (f" - {sped}" if sped else "")
     }
     
     # Remove if already exists to avoid duplicates
     prompt_history = [p for p in prompt_history if not (
         p['grade'] == grade and p['subject'] == subject and 
-        p['topic'] == topic and p['sel'] == sel
+        p['topic'] == topic and p['sel'] == sel and p.get('sped', '') == sped
     )]
     
     # Add to beginning and keep only last 10
@@ -134,14 +135,25 @@ def home():
             subject = request.form["subject"]
             topic = request.form["topic"]
             sel = request.form["sel"]
+            sped = request.form.get("sped", "")
             
             # Add to history
-            add_to_history(grade, subject, topic, sel)
+            add_to_history(grade, subject, topic, sel, sped)
 
             last_prompt = (
                 f"Design a comprehensive integrated lesson plan for {grade} students "
-                f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}. "
-                f"The lesson should include: a creative hook, clear learning objectives, "
+                f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}."
+            )
+            
+            if sped:
+                last_prompt += (
+                    f" This lesson should include specific accommodations and modifications "
+                    f"for students with {sped}. Consider sensory needs, communication strategies, "
+                    f"and individualized support approaches."
+                )
+            
+            last_prompt += (
+                f" The lesson should include: a creative hook, clear learning objectives, "
                 f"direct instruction, an engaging activity or game, guided practice, "
                 f"reflection questions that connect to the SEL focus, and an exit slip. "
                 f"Make it detailed and practical for teachers to implement."
@@ -153,11 +165,22 @@ def home():
             subject = request.form["subject"]
             topic = request.form["topic"]
             sel = request.form["sel"]
+            sped = request.form.get("sped", "")
             
             last_prompt = (
                 f"Design a comprehensive integrated lesson plan for {grade} students "
-                f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}. "
-                f"The lesson should include: a creative hook, clear learning objectives, "
+                f"on the topic of '{topic}' in {subject}. Include an SEL focus on {sel}."
+            )
+            
+            if sped:
+                last_prompt += (
+                    f" This lesson should include specific accommodations and modifications "
+                    f"for students with {sped}. Consider sensory needs, communication strategies, "
+                    f"and individualized support approaches."
+                )
+            
+            last_prompt += (
+                f" The lesson should include: a creative hook, clear learning objectives, "
                 f"direct instruction, an engaging activity or game, guided practice, "
                 f"reflection questions that connect to the SEL focus, and an exit slip. "
                 f"Make it detailed and practical for teachers to implement."
@@ -225,7 +248,8 @@ def home():
                     sel_focus=sel,
                     lesson_text=lesson,
                     academic_standard=academic_standard,
-                    sel_standard=sel_standard
+                    sel_standard=sel_standard,
+                    sped_focus=sped
                 )
                 db.session.add(lesson_record)
                 db.session.commit()
@@ -264,10 +288,11 @@ def home():
     if prompt_history:
         prompt_history_html = "<div style='max-height: 300px; overflow-y: auto;'>"
         for i, prompt in enumerate(prompt_history):
+            sped_display = f" • 🧩 {prompt['sped']}" if prompt.get('sped') else ""
             prompt_history_html += f"""
             <div class="border-start border-warning border-3 ps-3 mb-3">
                 <div class="fw-semibold text-primary mb-1">
-                    {prompt['grade']} • {prompt['subject']} • {prompt['sel']}
+                    {prompt['grade']} • {prompt['subject']} • {prompt['sel']}{sped_display}
                 </div>
                 <div class="text-muted mb-2">
                     Topic: {prompt['topic']}
@@ -278,6 +303,7 @@ def home():
                     <input type="hidden" name="subject" value="{prompt['subject']}">
                     <input type="hidden" name="topic" value="{prompt['topic']}">
                     <input type="hidden" name="sel" value="{prompt['sel']}">
+                    <input type="hidden" name="sped" value="{prompt.get('sped', '')}">
                     <button type="submit" class="btn btn-sm btn-warning">
                         ↻ Use This Prompt
                     </button>
